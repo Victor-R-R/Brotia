@@ -6,7 +6,7 @@
     "lib": ["esnext"],
     "module": "CommonJS",
     "jsx": "react-native",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true
   }
 }

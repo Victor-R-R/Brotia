@@ -4,7 +4,7 @@
   "private": true,
   "exports": {
     "./tailwind": "./tailwind.config.ts",
-    "./tsconfig/*": "./tsconfig/*.json",
+    "./tsconfig/*.json": "./tsconfig/*.json",
     "./tokens": "./tokens.css"
   }
 }
