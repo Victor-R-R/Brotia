@@ -9,7 +9,7 @@ vi.mock('@auth/prisma-adapter', () => ({
 }))
 
 vi.mock('next-auth', () => ({
-  default: vi.fn((config: any) => ({
+  default: vi.fn(() => ({
     handlers: { GET: vi.fn(), POST: vi.fn() },
     auth: vi.fn(),
     signIn: vi.fn(),
@@ -20,18 +20,17 @@ vi.mock('next-auth', () => ({
 import { authConfig } from '@/lib/auth'
 
 describe('authConfig', () => {
+  const providerIds = authConfig.providers.map((p) => (p as { id: string }).id)
+
   it('has Google provider configured', () => {
-    const providerIds = authConfig.providers.map((p: any) => (p as any).id)
     expect(providerIds).toContain('google')
   })
 
   it('has Apple provider configured', () => {
-    const providerIds = authConfig.providers.map((p: any) => (p as any).id)
     expect(providerIds).toContain('apple')
   })
 
   it('has Resend provider configured', () => {
-    const providerIds = authConfig.providers.map((p: any) => (p as any).id)
     expect(providerIds).toContain('resend')
   })
 })

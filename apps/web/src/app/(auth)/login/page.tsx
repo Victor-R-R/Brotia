@@ -1,4 +1,16 @@
+'use server'
+
 import { signIn } from '@/lib/auth'
+
+const signInWithGoogle = async () => {
+  'use server'
+  await signIn('google')
+}
+
+const signInWithEmail = async (fd: FormData) => {
+  'use server'
+  await signIn('resend', { email: fd.get('email'), redirectTo: '/' })
+}
 
 const LoginPage = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
@@ -7,7 +19,7 @@ const LoginPage = () => (
       <p className="text-muted text-sm mb-8">Accede a tus invernaderos</p>
 
       <div className="flex flex-col gap-3">
-        <form action={async () => { 'use server'; await signIn('google') }}>
+        <form action={signInWithGoogle}>
           <button
             type="submit"
             className="w-full bg-surface-alt border border-border text-foreground rounded-md py-2.5 px-4 text-sm font-medium hover:bg-surface-raised transition-colors cursor-pointer"
@@ -16,10 +28,7 @@ const LoginPage = () => (
           </button>
         </form>
 
-        <form action={async (fd: FormData) => {
-          'use server'
-          await signIn('resend', { email: fd.get('email'), redirectTo: '/' })
-        }}>
+        <form action={signInWithEmail}>
           <input
             name="email"
             type="email"

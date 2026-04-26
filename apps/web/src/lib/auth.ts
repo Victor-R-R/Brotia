@@ -1,11 +1,11 @@
-import NextAuth from 'next-auth'
+import NextAuth, { type NextAuthConfig } from 'next-auth'
 import Google from 'next-auth/providers/google'
 import Apple from 'next-auth/providers/apple'
 import Resend from 'next-auth/providers/resend'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { db } from '@brotia/db'
 
-export const authConfig = {
+export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(db),
   providers: [
     Google({
