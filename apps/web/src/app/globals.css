@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Import tokens inline — Tailwind v4 doesn't support @import inside @theme */
   --color-background:     #FAFCF7;
   --color-surface:        #FFFFFF;
   --color-surface-alt:    #F2F7EE;
@@ -31,7 +30,7 @@
   --radius-sm:   8px;
   --radius-md:   16px;
   --radius-lg:   24px;
-  --radius-pill: 9999px;
+  --radius-pill: 999px;
   --shadow-sm:   0 1px 4px rgba(45, 90, 27, 0.08);
   --shadow-md:   0 4px 16px rgba(45, 90, 27, 0.12);
   --shadow-lg:   0 8px 32px rgba(45, 90, 27, 0.16);
