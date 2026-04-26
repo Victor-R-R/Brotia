@@ -17,8 +17,13 @@ export const weatherResponseSchema = z.object({
 
 export type WeatherResponse = z.infer<typeof weatherResponseSchema>
 
-export type AlertCheckResult = {
-  type: 'FROST' | 'HAIL' | 'STRONG_WIND' | 'HIGH_HUMIDITY' | 'RAIN_EXPECTED'
-  message: string
-  severity: 'low' | 'medium' | 'high'
-}
+export const alertTypeSchema = z.enum(['FROST', 'HAIL', 'STRONG_WIND', 'HIGH_HUMIDITY', 'RAIN_EXPECTED'])
+export const alertSeveritySchema = z.enum(['low', 'medium', 'high'])
+
+export const alertCheckResultSchema = z.object({
+  type:     alertTypeSchema,
+  message:  z.string(),
+  severity: alertSeveritySchema,
+})
+
+export type AlertCheckResult = z.infer<typeof alertCheckResultSchema>
