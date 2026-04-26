@@ -1,16 +1,4 @@
-'use server'
-
-import { signIn } from '@/lib/auth'
-
-const signInWithGoogle = async () => {
-  'use server'
-  await signIn('google')
-}
-
-const signInWithEmail = async (fd: FormData) => {
-  'use server'
-  await signIn('resend', { email: fd.get('email'), redirectTo: '/' })
-}
+import { signInWithGoogle, signInWithEmail } from './actions'
 
 const LoginPage = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
