@@ -1,0 +1,119 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  avatar       String?
+  provider     String?
+  createdAt    DateTime      @default(now())
+  greenhouses  Greenhouse[]
+  chatMessages ChatMessage[]
+}
+
+model Greenhouse {
+  id        String         @id @default(cuid())
+  name      String
+  lat       Float
+  lng       Float
+  area      Float?
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+  crops     Crop[]
+  notes     Note[]
+  alerts    WeatherAlert[]
+}
+
+model Crop {
+  id                String       @id @default(cuid())
+  name              String
+  variety           String?
+  plantedAt         DateTime
+  expectedHarvestAt DateTime?
+  harvestedAt       DateTime?
+  yieldKg           Float?
+  status            CropStatus   @default(GROWING)
+  season            String?
+  greenhouseId      String
+  greenhouse        Greenhouse   @relation(fields: [greenhouseId], references: [id], onDelete: Cascade)
+  createdAt         DateTime     @default(now())
+  notes             Note[]
+  pestRecords       PestRecord[]
+  treatments        Treatment[]
+}
+
+enum CropStatus {
+  GROWING
+  HARVESTED
+  FAILED
+}
+
+model Note {
+  id           String      @id @default(cuid())
+  content      String
+  photos       String[]
+  createdAt    DateTime    @default(now())
+  greenhouseId String?
+  greenhouse   Greenhouse? @relation(fields: [greenhouseId], references: [id])
+  cropId       String?
+  crop         Crop?       @relation(fields: [cropId], references: [id])
+}
+
+model WeatherAlert {
+  id           String     @id @default(cuid())
+  type         AlertType
+  message      String
+  severity     String
+  read         Boolean    @default(false)
+  triggeredAt  DateTime   @default(now())
+  greenhouseId String
+  greenhouse   Greenhouse @relation(fields: [greenhouseId], references: [id], onDelete: Cascade)
+}
+
+enum AlertType {
+  FROST
+  HAIL
+  STRONG_WIND
+  HIGH_HUMIDITY
+  RAIN_EXPECTED
+}
+
+model PestRecord {
+  id         String   @id @default(cuid())
+  pestName   String
+  severity   String
+  notes      String?
+  photos     String[]
+  detectedAt DateTime @default(now())
+  cropId     String
+  crop       Crop     @relation(fields: [cropId], references: [id], onDelete: Cascade)
+}
+
+model Treatment {
+  id          String   @id @default(cuid())
+  productName String
+  dosePerUnit String
+  appliedAt   DateTime @default(now())
+  safetyDays  Int
+  notes       String?
+  cropId      String
+  crop        Crop     @relation(fields: [cropId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
