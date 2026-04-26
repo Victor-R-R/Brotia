@@ -12,17 +12,22 @@ export const GET = async (_req: Request, { params }: Params) => {
   }
 
   const { id } = await params
-  const greenhouse = await db.greenhouse.findFirst({
-    where:  { id, userId: session.user.id },
-    select: { lat: true, lng: true },
-  })
 
-  if (!greenhouse) {
-    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  try {
+    const greenhouse = await db.greenhouse.findFirst({
+      where:  { id, userId: session.user.id },
+      select: { lat: true, lng: true },
+    })
+
+    if (!greenhouse) {
+      return NextResponse.json({ error: 'not_found' }, { status: 404 })
+    }
+
+    const weather = await getWeather(greenhouse.lat, greenhouse.lng)
+    const alerts  = checkAlerts(weather)
+
+    return NextResponse.json({ weather, alerts })
+  } catch {
+    return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   }
-
-  const weather = await getWeather(greenhouse.lat, greenhouse.lng)
-  const alerts  = checkAlerts(weather)
-
-  return NextResponse.json({ weather, alerts })
 }
