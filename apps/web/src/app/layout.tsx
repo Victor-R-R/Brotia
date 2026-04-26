@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <html lang="es" className={`${inter.variable} ${outfit.variable}`}>
+  <html lang="es" className={`${inter.variable} ${outfit.variable}`} suppressHydrationWarning>
     <body className="bg-background text-foreground min-h-screen">
       {children}
     </body>
