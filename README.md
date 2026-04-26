@@ -1,43 +1,64 @@
-# Brotia
+<div align="center">
 
-Greenhouse management platform. Track your greenhouses, crops, weather conditions, and automated climate alerts from a single dashboard.
+# 🌿 Brotia
 
-## What it does
+**Greenhouse management platform for modern farmers.**  
+Track your greenhouses, crops, weather, and automated climate alerts — all in one place.
 
-- **Greenhouse management** — Register multiple greenhouses with GPS coordinates and area. Visualize them all on an interactive map.
-- **Crop tracking** — Track crops from planting to harvest. Record yield, status (`GROWING`, `HARVESTED`, `FAILED`), and expected harvest dates.
-- **Notes & field records** — Attach notes with photos to greenhouses or individual crops. Log pest detections and phytosanitary treatments with safety intervals.
-- **Weather monitoring** — Per-greenhouse live weather data (temperature, humidity, wind, precipitation) via [Open-Meteo](https://open-meteo.com/).
-- **Automated alerts** — Hourly cron job checks weather for every registered greenhouse and creates alerts for: frost, hail risk, strong winds, high humidity, and incoming rain.
-- **Mobile app** — Companion Expo app with location access for on-site use.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org)
+[![Expo](https://img.shields.io/badge/Expo-54-000020?logo=expo)](https://expo.dev)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)](https://prisma.io)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green)](./LICENSE)
 
-## Alert types
+</div>
 
-| Alert | Trigger |
-|---|---|
-| `FROST` | Temperature < 2 °C (high severity below 0 °C) |
-| `STRONG_WIND` | Wind > 60 km/h (high severity above 90 km/h) |
-| `HIGH_HUMIDITY` | Humidity > 90% |
-| `RAIN_EXPECTED` | > 80% precipitation probability in next 12 h |
-| `HAIL` | > 70% precip probability + convective showers detected |
+---
 
-## Tech stack
+## ✨ Features
+
+| | Feature | Description |
+|---|---|---|
+| 🏡 | **Greenhouse management** | Register greenhouses with GPS coordinates and area. View them all on an interactive map. |
+| 🌱 | **Crop tracking** | Track crops from planting to harvest — yield, status, and expected harvest dates. |
+| 📝 | **Notes & field records** | Attach notes with photos to greenhouses or crops. Log pest detections and treatments. |
+| 🌤️ | **Live weather** | Per-greenhouse real-time weather via [Open-Meteo](https://open-meteo.com/) (free, no key needed). |
+| 🚨 | **Automated alerts** | Hourly cron checks weather for every greenhouse and creates severity-rated alerts. |
+| 📱 | **Mobile app** | Expo companion app with location access for on-site use. |
+
+---
+
+## 🚨 Alert types
+
+| Alert | Trigger | Severity |
+|---|---|---|
+| 🧊 `FROST` | Temperature < 2 °C | Medium · High below 0 °C |
+| 💨 `STRONG_WIND` | Wind > 60 km/h | Medium · High above 90 km/h |
+| 💧 `HIGH_HUMIDITY` | Humidity > 90% | Low |
+| 🌧️ `RAIN_EXPECTED` | > 80% precip probability in next 12 h | Low |
+| ⛈️ `HAIL` | > 70% precip + convective showers detected | High |
+
+---
+
+## 🛠️ Tech stack
 
 | Layer | Technology |
 |---|---|
-| Web framework | Next.js 16 + React 19 |
-| Mobile | Expo 54 + React Native 0.81 |
-| Styling | Tailwind CSS v4 |
-| Auth | NextAuth v5 — Google OAuth + Resend (magic link) |
-| Database | PostgreSQL via [Neon](https://neon.tech) (serverless) |
-| ORM | Prisma 6 + `@prisma/adapter-neon` |
-| Map | MapLibre GL 5 + react-map-gl |
-| Weather | Open-Meteo API (free, no key required) |
-| Monorepo | Turborepo + pnpm |
-| Testing | Vitest + Testing Library |
-| Deployment | Vercel (cron jobs for alert detection) |
+| 🌐 Web | Next.js 16 + React 19 |
+| 📱 Mobile | Expo 54 + React Native 0.81 |
+| 🎨 Styling | Tailwind CSS v4 |
+| 🔐 Auth | NextAuth v5 — Google OAuth + Resend magic link |
+| 🗄️ Database | PostgreSQL via [Neon](https://neon.tech) (serverless) |
+| 🔷 ORM | Prisma 6 + `@prisma/adapter-neon` |
+| 🗺️ Map | MapLibre GL 5 + react-map-gl |
+| ☁️ Weather | Open-Meteo API |
+| 📦 Monorepo | Turborepo + pnpm |
+| 🧪 Testing | Vitest + Testing Library |
+| 🚀 Deployment | Vercel (cron jobs for hourly alert detection) |
 
-## Project structure
+---
+
+## 📁 Project structure
 
 ```
 brotia/
@@ -50,15 +71,17 @@ brotia/
     └── config/       # Shared TypeScript / ESLint config
 ```
 
-## Getting started
+---
+
+## 🚀 Getting started
 
 ### Prerequisites
 
 - Node.js 20+
 - pnpm 9+
-- A Neon database (or any PostgreSQL instance)
+- A [Neon](https://neon.tech) database (or any PostgreSQL instance)
 - Google OAuth credentials
-- Resend API key (email magic links)
+- [Resend](https://resend.com) API key (email magic links)
 
 ### Environment variables
 
@@ -80,6 +103,7 @@ CRON_SECRET=...          # Shared secret for the alerts cron endpoint
 ### Install and run
 
 ```bash
+# Install dependencies
 pnpm install
 
 # Push schema to the database
@@ -97,7 +121,9 @@ The web app runs on `http://localhost:3000`.
 pnpm test
 ```
 
-## API routes
+---
+
+## 🔌 API routes
 
 ```
 GET  /api/greenhouses                   List user's greenhouses
@@ -109,7 +135,9 @@ GET  /api/greenhouses/:id/weather       Current weather + alert check
 POST /api/alerts/check                  Cron endpoint — checks all greenhouses (Bearer CRON_SECRET)
 ```
 
-## Deployment
+---
+
+## ☁️ Deployment
 
 Deploy to Vercel. Set all environment variables in the project settings.
 
