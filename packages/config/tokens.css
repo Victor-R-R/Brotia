@@ -1,2 +1,57 @@
-/* Design tokens — populated in Task 2 */
-@theme inline {}
+@theme inline {
+  /* ── Backgrounds ─────────────────────────────── */
+  --color-background:     #FAFCF7;
+  --color-surface:        #FFFFFF;
+  --color-surface-alt:    #F2F7EE;
+  --color-surface-raised: #E8F2DF;
+
+  /* ── Verdes principales ───────────────────────── */
+  --color-primary:        #2D5A1B;
+  --color-primary-hover:  #3D7525;
+  --color-primary-light:  #5A9E3E;
+
+  /* ── Verdes secundarios ──────────────────────── */
+  --color-pea:            #8DB84A;
+  --color-olive:          #6B7C3D;
+  --color-sage:           #A8C185;
+  --color-mint:           #D4E6C3;
+
+  /* ── Textos ──────────────────────────────────── */
+  --color-foreground:     #1C2E0F;
+  --color-muted:          #4B6838;
+  --color-subtle:         #7A9B6A;
+
+  /* ── Bordes ──────────────────────────────────── */
+  --color-border:         #C8DEB5;
+  --color-border-subtle:  #E2EFDA;
+
+  /* ── Alertas semánticas ───────────────────────── */
+  --color-frost:          #BAE6FD;
+  --color-frost-text:     #0369A1;
+  --color-hail:           #C7D2FE;
+  --color-hail-text:      #3730A3;
+  --color-wind:           #FEF3C7;
+  --color-wind-text:      #92400E;
+  --color-danger:         #FEE2E2;
+  --color-danger-text:    #991B1B;
+
+  /* ── Acento CTA ───────────────────────────────── */
+  --color-harvest:        #CA8A04;
+  --color-harvest-hover:  #A16207;
+
+  /* ── Radios orgánicos ────────────────────────── */
+  --radius-sm:   8px;
+  --radius-md:   16px;
+  --radius-lg:   24px;
+  --radius-pill: 9999px;
+
+  /* ── Sombras naturales ───────────────────────── */
+  --shadow-sm:  0 1px 4px rgba(45, 90, 27, 0.08);
+  --shadow-md:  0 4px 16px rgba(45, 90, 27, 0.12);
+  --shadow-lg:  0 8px 32px rgba(45, 90, 27, 0.16);
+
+  /* ── Tipografía ──────────────────────────────── */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+}
