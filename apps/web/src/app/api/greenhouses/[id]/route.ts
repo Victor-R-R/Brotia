@@ -12,20 +12,25 @@ export const GET = async (_req: Request, { params }: Params) => {
   }
 
   const { id } = await params
-  const greenhouse = await db.greenhouse.findFirst({
-    where:   { id, userId: session.user.id },
-    include: {
-      crops:  true,
-      notes:  { orderBy: { createdAt: 'desc' }, take: 5 },
-      alerts: { where: { read: false } },
-    },
-  })
 
-  if (!greenhouse) {
-    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  try {
+    const greenhouse = await db.greenhouse.findFirst({
+      where:   { id, userId: session.user.id },
+      include: {
+        crops:  true,
+        notes:  { orderBy: { createdAt: 'desc' }, take: 5 },
+        alerts: { where: { read: false } },
+      },
+    })
+
+    if (!greenhouse) {
+      return NextResponse.json({ error: 'not_found' }, { status: 404 })
+    }
+
+    return NextResponse.json(greenhouse)
+  } catch {
+    return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   }
-
-  return NextResponse.json(greenhouse)
 }
 
 export const PUT = async (req: Request, { params }: Params) => {
@@ -35,12 +40,6 @@ export const PUT = async (req: Request, { params }: Params) => {
   }
 
   const { id } = await params
-  const existing = await db.greenhouse.findFirst({ where: { id, userId: session.user.id } })
-
-  if (!existing) {
-    return NextResponse.json({ error: 'not_found' }, { status: 404 })
-  }
-
   const body = await req.json()
   const parsed = updateGreenhouseSchema.safeParse(body)
 
@@ -48,8 +47,18 @@ export const PUT = async (req: Request, { params }: Params) => {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const updated = await db.greenhouse.update({ where: { id }, data: parsed.data })
-  return NextResponse.json(updated)
+  try {
+    const existing = await db.greenhouse.findFirst({ where: { id, userId: session.user.id } })
+
+    if (!existing) {
+      return NextResponse.json({ error: 'not_found' }, { status: 404 })
+    }
+
+    const updated = await db.greenhouse.update({ where: { id }, data: parsed.data })
+    return NextResponse.json(updated)
+  } catch {
+    return NextResponse.json({ error: 'internal_error' }, { status: 500 })
+  }
 }
 
 export const DELETE = async (_req: Request, { params }: Params) => {
@@ -59,12 +68,18 @@ export const DELETE = async (_req: Request, { params }: Params) => {
   }
 
   const { id } = await params
-  const existing = await db.greenhouse.findFirst({ where: { id, userId: session.user.id } })
 
-  if (!existing) {
-    return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  try {
+    const result = await db.greenhouse.deleteMany({
+      where: { id, userId: session.user.id },
+    })
+
+    if (result.count === 0) {
+      return NextResponse.json({ error: 'not_found' }, { status: 404 })
+    }
+
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   }
-
-  await db.greenhouse.delete({ where: { id } })
-  return NextResponse.json({ ok: true })
 }
