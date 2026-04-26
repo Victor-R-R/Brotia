@@ -62,9 +62,9 @@ model Note {
   photos       String[]
   createdAt    DateTime    @default(now())
   greenhouseId String?
-  greenhouse   Greenhouse? @relation(fields: [greenhouseId], references: [id])
+  greenhouse   Greenhouse? @relation(fields: [greenhouseId], references: [id], onDelete: SetNull)
   cropId       String?
-  crop         Crop?       @relation(fields: [cropId], references: [id])
+  crop         Crop?       @relation(fields: [cropId], references: [id], onDelete: SetNull)
 }
 
 model WeatherAlert {
