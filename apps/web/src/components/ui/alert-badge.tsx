@@ -9,7 +9,7 @@ const alertConfig: Record<AlertType, { label: string; classes: string }> = {
   FROST:         { label: 'Helada',   classes: 'bg-frost text-frost-text' },
   HAIL:          { label: 'Granizo',  classes: 'bg-hail text-hail-text' },
   STRONG_WIND:   { label: 'Viento',   classes: 'bg-wind text-wind-text' },
-  HIGH_HUMIDITY: { label: 'Humedad',  classes: 'bg-hail text-hail-text' },
+  HIGH_HUMIDITY: { label: 'Humedad',  classes: 'bg-wind text-wind-text' },
   RAIN_EXPECTED: { label: 'Lluvia',   classes: 'bg-frost text-frost-text' },
 }
 
