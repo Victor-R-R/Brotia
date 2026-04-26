@@ -3,8 +3,9 @@ import { db } from '@brotia/db'
 import { getWeather, checkAlerts } from '@/lib/weather'
 
 export const POST = async (req: Request) => {
+  const secret     = process.env.CRON_SECRET
   const authHeader = req.headers.get('Authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!secret || authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -33,7 +34,8 @@ export const POST = async (req: Request) => {
     }
 
     return NextResponse.json({ ok: true, created })
-  } catch {
+  } catch (error) {
+    console.error('[alerts/check]', error)
     return NextResponse.json({ error: 'internal_error' }, { status: 500 })
   }
 }
