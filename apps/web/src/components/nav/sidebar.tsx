@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, Leaf, BarChart2, Bot, Settings, Shield, Users } from 'lucide-react'
+import { LayoutDashboard, Leaf, BarChart2, Bot, User, Shield, Users } from 'lucide-react'
 import { NavLink } from './nav-link'
 
 const navItems = [
@@ -9,7 +9,7 @@ const navItems = [
   { href: '/estadisticas', icon: BarChart2,        label: 'Estadísticas'  },
   { href: '/chat',         icon: Bot,             label: 'Brotia IA'     },
   { href: '/community',    icon: Users,           label: 'Comunidad'     },
-  { href: '/compte',       icon: Settings,        label: 'Mi cuenta'     },
+  { href: '/compte',       icon: User,            label: 'Mi cuenta'     },
 ]
 
 type SidebarProps = {

@@ -2,19 +2,26 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Leaf, Users, Bot, Settings, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Leaf, Users, Bot, User, BarChart3, Shield } from 'lucide-react'
 
-const navItems = [
+const baseNavItems = [
   { href: '/dashboard',     icon: LayoutDashboard, label: 'Inicio'        },
   { href: '/cultivos',      icon: Leaf,            label: 'Cultivos'      },
   { href: '/estadisticas',  icon: BarChart3,       label: 'Estadísticas'  },
   { href: '/community',     icon: Users,           label: 'Comunidad'     },
   { href: '/chat',          icon: Bot,             label: 'IA'            },
-  { href: '/compte',        icon: Settings,        label: 'Cuenta'        },
+  { href: '/compte',        icon: User,            label: 'Cuenta'        },
 ]
 
-export const BottomNav = () => {
+type BottomNavProps = {
+  isAdmin?: boolean
+}
+
+export const BottomNav = ({ isAdmin }: BottomNavProps) => {
   const pathname = usePathname()
+  const navItems = isAdmin
+    ? [...baseNavItems, { href: '/admin', icon: Shield, label: 'Admin' }]
+    : baseNavItems
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-surface border-t border-border flex md:hidden">
