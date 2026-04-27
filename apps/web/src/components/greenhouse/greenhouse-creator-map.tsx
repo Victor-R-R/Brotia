@@ -47,23 +47,7 @@ export const GreenhouseCreatorMap = memo(({
       map.on('load', () => {
         if (cancelled) return
 
-        // Catastro WMS overlay
-        map.addSource('catastro', {
-          type:     'raster',
-          tiles:    [
-            'https://www.catastro.meh.es/wms/wms.aspx?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap' +
-            '&FORMAT=image/png&TRANSPARENT=true&LAYERS=Catastro&SRS=EPSG:3857' +
-            '&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256',
-          ],
-          tileSize: 256,
-        })
-        map.addLayer({
-          id:     'catastro-layer',
-          type:   'raster',
-          source: 'catastro',
-          layout: { visibility: 'none' },
-          paint:  { 'raster-opacity': 0.65 },
-        })
+        // Catastro WMS overlay — source added lazily on first activation to avoid rate-limiting
 
         // Parcel polygon (fill + border)
         map.addSource('parcel', {
@@ -102,11 +86,38 @@ export const GreenhouseCreatorMap = memo(({
     }
   }, [])
 
-  // Toggle catastro layer
+  // Toggle catastro layer — lazy-init source on first activation
   useEffect(() => {
     const map = mapRef.current
     if (!mapReady || !map) return
-    map.setLayoutProperty('catastro-layer', 'visibility', showCatastro ? 'visible' : 'none')
+
+    if (showCatastro) {
+      if (map.getZoom() < 14) map.easeTo({ zoom: 16 })
+      if (!map.getSource('catastro')) {
+        map.addSource('catastro', {
+          type:     'raster',
+          tiles:    [
+            '/api/catastro-wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap' +
+            '&FORMAT=image/png&TRANSPARENT=true&LAYERS=Catastro&SRS=EPSG:3857' +
+            '&BBOX={bbox-epsg-3857}&WIDTH=256&HEIGHT=256',
+          ],
+          tileSize: 256,
+        })
+        map.addLayer({
+          id:      'catastro-layer',
+          type:    'raster',
+          source:  'catastro',
+          minzoom: 14,
+          paint:   { 'raster-opacity': 0.65 },
+        })
+      } else {
+        map.setLayoutProperty('catastro-layer', 'visibility', 'visible')
+      }
+    } else {
+      if (map.getLayer('catastro-layer')) {
+        map.setLayoutProperty('catastro-layer', 'visibility', 'none')
+      }
+    }
   }, [mapReady, showCatastro])
 
   // Update marker position
