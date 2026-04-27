@@ -7,6 +7,7 @@ import type { Note } from '@brotia/db'
 import { getWeather, checkAlerts } from '@/lib/weather'
 import { WeatherWidget } from '@/components/greenhouse/weather-widget'
 import { AlertBadge } from '@/components/ui/alert-badge'
+import { GreenhouseActions } from '@/components/greenhouse/greenhouse-actions'
 
 const wmoIcon = (code: number): string => {
   if (code === 0)               return '☀️'
@@ -70,6 +71,7 @@ const GreenhouseDetailPage = async ({ params }: Props) => {
             </span>
           ) : null}
         </div>
+        <GreenhouseActions id={greenhouse.id} />
       </div>
 
       {/* Weather */}

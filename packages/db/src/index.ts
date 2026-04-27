@@ -19,4 +19,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export { PrismaClient }
-export type { Greenhouse, Crop, Note, WeatherAlert, PestRecord, Treatment, ChatMessage, User } from '@prisma/client'
+export type { Greenhouse, Crop, Note, WeatherAlert, PestRecord, HarvestRecord, Treatment, ChatMessage, User } from '@prisma/client'

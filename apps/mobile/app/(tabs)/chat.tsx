@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView, Platform, ActivityIndicator,
   Image, Pressable, Modal, FlatList,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as ImagePicker from 'expo-image-picker'
 import { Bot, Plus, Send, Trash2, ImageIcon, X, MessageSquare } from 'lucide-react-native'
 import { palette } from '../../lib/theme'
@@ -19,7 +20,12 @@ const GREETING: Message = {
   content: '¡Hola! Soy tu asesor técnico agrícola de Brotia 🌱\n\n¿En qué puedo ayudarte hoy? Puedo ayudarte con:\n- Identificar plagas o enfermedades\n- Orientarte sobre tratamientos fitosanitarios en España\n- Buenas prácticas agronómicas\n\nCuéntame qué está pasando en tu cultivo.',
 }
 
+const TAB_BAR_HEIGHT = 56 // Android default bottom tab bar height
+
 const ChatScreen = () => {
+  const insets = useSafeAreaInsets()
+  const inputBottomPad = Platform.OS === 'android' ? insets.bottom + TAB_BAR_HEIGHT + 8 : 8
+
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId]           = useState<string | null>(null)
   const [messages, setMessages]           = useState<Message[]>([GREETING])
@@ -296,8 +302,8 @@ const ChatScreen = () => {
           ))}
         </ScrollView>
 
-        {/* Input — pb-24 clears the bottom tab bar + home indicator */}
-        <View className="px-4 pb-24 pt-3 bg-surface border-t border-border gap-3">
+        {/* Input */}
+        <View className="px-4 pt-3 bg-surface border-t border-border gap-3" style={{ paddingBottom: inputBottomPad }}>
           {pendingImage && (
             <View className="w-20 relative">
               <Image source={{ uri: pendingImage }} className="w-20 h-20 rounded-md" />
