@@ -24,6 +24,7 @@ Track your greenhouses, crops, weather, and automated climate alerts — all in 
 | 📝 | **Notes & field records** | Attach notes with photos to greenhouses or crops. Log pest detections and treatments. |
 | 🌤️ | **Live weather** | Per-greenhouse real-time weather via [Open-Meteo](https://open-meteo.com/) (free, no key needed). |
 | 🚨 | **Automated alerts** | Hourly cron checks weather for every greenhouse and creates severity-rated alerts. |
+| 📊 | **Statistics dashboard** | Interactive charts for harvest production by month, crop, and greenhouse — with multi-greenhouse filtering and inter-year comparison. |
 | 📱 | **Mobile app** | Expo companion app with location access for on-site use. |
 
 ---
