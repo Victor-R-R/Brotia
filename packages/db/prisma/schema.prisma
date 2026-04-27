@@ -12,6 +12,10 @@ model User {
   email         String         @unique
   emailVerified DateTime?
   name          String?
+  lastName      String?
+  phone         String?
+  address       String?
+  password      String?
   image         String?
   avatar        String?
   provider      String?
