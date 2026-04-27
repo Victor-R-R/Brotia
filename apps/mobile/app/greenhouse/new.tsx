@@ -1,14 +1,35 @@
 import { useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native'
 import { useRouter, Stack } from 'expo-router'
-import { MapPin } from 'lucide-react-native'
+import { MapPin, CheckCircle } from 'lucide-react-native'
 import { api } from '@/lib/api'
 import { palette } from '@/lib/theme'
 
+const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
+
 const NewGreenhouseScreen = () => {
-  const router  = useRouter()
-  const [form,    setForm]    = useState({ name: '', lat: '', lng: '', area: '' })
-  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const [form,       setForm]       = useState({ name: '', lat: '', lng: '', area: '' })
+  const [loading,    setLoading]    = useState(false)
+  const [catastroRc, setCatastroRc] = useState<string | null>(null)
+  const [querying,   setQuerying]   = useState(false)
+
+  const lookupCatastro = async (lat: string, lng: string) => {
+    setQuerying(true)
+    setCatastroRc(null)
+    try {
+      const res  = await fetch(`${API_URL}/api/catastro?lat=${lat}&lng=${lng}`)
+      const data = await res.json()
+      if (data.found) {
+        setCatastroRc(data.rc ?? null)
+        if (data.area) setForm(prev => ({ ...prev, area: String(Math.round(data.area)) }))
+      }
+    } catch {
+      // Non-critical
+    } finally {
+      setQuerying(false)
+    }
+  }
 
   const detectLocation = async () => {
     try {
@@ -19,11 +40,10 @@ const NewGreenhouseScreen = () => {
         return
       }
       const loc = await Location.getCurrentPositionAsync({})
-      setForm(prev => ({
-        ...prev,
-        lat: loc.coords.latitude.toFixed(6),
-        lng: loc.coords.longitude.toFixed(6),
-      }))
+      const lat = loc.coords.latitude.toFixed(6)
+      const lng = loc.coords.longitude.toFixed(6)
+      setForm(prev => ({ ...prev, lat, lng }))
+      lookupCatastro(lat, lng)
     } catch {
       Alert.alert('No disponible', 'Introduce las coordenadas manualmente')
     }
@@ -72,6 +92,7 @@ const NewGreenhouseScreen = () => {
     <>
       <Stack.Screen options={{ title: 'Nuevo invernadero', headerShown: true }} />
       <ScrollView className="flex-1 bg-background px-4 pt-4">
+
         {[
           { key: 'name', label: 'Nombre',          placeholder: 'Invernadero Norte', numeric: false },
           { key: 'area', label: 'Superficie (m²)',  placeholder: '500',               numeric: true  },
@@ -91,13 +112,24 @@ const NewGreenhouseScreen = () => {
 
         <View className="mb-4">
           <Text className="text-sm font-medium text-foreground mb-1.5">Ubicación GPS</Text>
+
           <TouchableOpacity
             className="bg-surface-alt border border-border rounded-xl px-3 py-3 flex-row items-center gap-2 mb-2"
             onPress={detectLocation}
           >
             <MapPin size={16} color={palette.primary} />
-            <Text className="text-sm text-primary font-medium">Detectar mi ubicación</Text>
+            <Text className="text-sm text-primary font-medium flex-1">Detectar mi ubicación</Text>
+            {querying && <ActivityIndicator size="small" color={palette.primary} />}
           </TouchableOpacity>
+
+          {catastroRc ? (
+            <View className="flex-row items-center gap-2 bg-surface border border-border rounded-xl px-3 py-2 mb-2">
+              <CheckCircle size={13} color={palette.primary} />
+              <Text className="text-xs text-muted">Catastro:</Text>
+              <Text className="text-xs font-mono text-foreground flex-1" numberOfLines={1}>{catastroRc}</Text>
+            </View>
+          ) : null}
+
           <View className="flex-row gap-2">
             {(['lat', 'lng'] as const).map(key => (
               <TextInput
