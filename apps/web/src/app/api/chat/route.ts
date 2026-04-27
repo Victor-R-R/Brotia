@@ -76,20 +76,24 @@ export const POST = async (req: Request) => {
     const lastMsg = messages[messages.length - 1]
     const textContent = lastMsg.parts.filter(isTextUIPart).map(p => p.text).join('') || ''
 
-    // Handle image upload to Vercel Blob
+    // Handle image upload to Vercel Blob (optional — requires BLOB_READ_WRITE_TOKEN)
     let imageUrl: string | null = null
     const fileParts = lastMsg.parts.filter(isFileUIPart)
-    if (fileParts.length > 0 && fileParts[0].url.startsWith('data:')) {
-      const dataUrl = fileParts[0].url
-      const [header, base64] = dataUrl.split(',')
-      const mimeMatch = header.match(/data:([^;]+)/)
-      const mimeType = mimeMatch?.[1] ?? 'image/jpeg'
-      const buffer = Buffer.from(base64, 'base64')
-      const blob = await put(`chat/${conversationId}/${Date.now()}.jpg`, buffer, {
-        access: 'public',
-        contentType: mimeType,
-      })
-      imageUrl = blob.url
+    if (fileParts.length > 0 && fileParts[0].url.startsWith('data:') && process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const dataUrl = fileParts[0].url
+        const [header, base64] = dataUrl.split(',')
+        const mimeMatch = header.match(/data:([^;]+)/)
+        const mimeType = mimeMatch?.[1] ?? 'image/jpeg'
+        const buffer = Buffer.from(base64, 'base64')
+        const blob = await put(`chat/${conversationId}/${Date.now()}.jpg`, buffer, {
+          access: 'private',
+          contentType: mimeType,
+        })
+        imageUrl = blob.url
+      } catch (blobErr) {
+        console.warn('[/api/chat] Blob upload skipped:', blobErr)
+      }
     }
 
     // Save user message

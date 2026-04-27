@@ -201,10 +201,13 @@ export const ChatInterface = () => {
             </p>
           ) : (
             conversations.map(c => (
-              <button
+              <div
                 key={c.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => selectConversation(c.id)}
-                className={`w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-surface-alt transition-colors group ${
+                onKeyDown={e => e.key === 'Enter' && selectConversation(c.id)}
+                className={`w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-surface-alt transition-colors group cursor-pointer ${
                   activeId === c.id ? 'bg-surface-alt' : ''
                 }`}
               >
@@ -217,7 +220,7 @@ export const ChatInterface = () => {
                 >
                   <Trash2 className="size-3 text-danger-text" />
                 </button>
-              </button>
+              </div>
             ))
           )}
         </div>
