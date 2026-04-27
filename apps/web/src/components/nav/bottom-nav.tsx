@@ -2,14 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Leaf, Users, Bot, Settings } from 'lucide-react'
+import { LayoutDashboard, Leaf, Users, Bot, Settings, BarChart3 } from 'lucide-react'
 
 const navItems = [
-  { href: '/dashboard',  icon: LayoutDashboard, label: 'Inicio'    },
-  { href: '/cultivos',   icon: Leaf,            label: 'Cultivos'  },
-  { href: '/community',  icon: Users,           label: 'Comunidad' },
-  { href: '/chat',       icon: Bot,             label: 'IA'        },
-  { href: '/compte',     icon: Settings,        label: 'Cuenta'    },
+  { href: '/dashboard',     icon: LayoutDashboard, label: 'Inicio'        },
+  { href: '/cultivos',      icon: Leaf,            label: 'Cultivos'      },
+  { href: '/estadisticas',  icon: BarChart3,       label: 'Estadísticas'  },
+  { href: '/community',     icon: Users,           label: 'Comunidad'     },
+  { href: '/chat',          icon: Bot,             label: 'IA'            },
+  { href: '/compte',        icon: Settings,        label: 'Cuenta'        },
 ]
 
 export const BottomNav = () => {
