@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Leaf, Bot, Settings } from 'lucide-react'
+import { LayoutDashboard, Leaf, BarChart2, Bot, Settings } from 'lucide-react'
 
 const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Invernaderos' },
-  { href: '/cultivos',  icon: Leaf,            label: 'Cultivos'     },
-  { href: '/chat',      icon: Bot,             label: 'Brotia IA'    },
-  { href: '/ajustes',   icon: Settings,        label: 'Ajustes'      },
+  { href: '/dashboard',    icon: LayoutDashboard, label: 'Inicio'    },
+  { href: '/cultivos',     icon: Leaf,            label: 'Cultivos'  },
+  { href: '/estadisticas', icon: BarChart2,        label: 'Stats'     },
+  { href: '/chat',         icon: Bot,             label: 'IA'        },
+  { href: '/ajustes',      icon: Settings,        label: 'Ajustes'   },
 ]
 
 export const BottomNav = () => {
