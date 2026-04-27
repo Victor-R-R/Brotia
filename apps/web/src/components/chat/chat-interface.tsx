@@ -49,9 +49,11 @@ export const ChatInterface = () => {
   const [pendingImage, setPendingImage]               = useState<File | null>(null)
   const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(null)
   const [sidebarOpen, setSidebarOpen]                 = useState(false)
+  const [isPendingResponse, setIsPendingResponse]     = useState(false)
   const conversationIdRef                             = useRef<string | null>(null)
   const messagesEndRef                                = useRef<HTMLDivElement | null>(null)
   const fileInputRef                                  = useRef<HTMLInputElement | null>(null)
+  const pollRef                                       = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const transport = useMemo(
     () => new DefaultChatTransport({
@@ -77,30 +79,69 @@ export const ChatInterface = () => {
 
   useEffect(() => { fetchConversations() }, [fetchConversations])
 
+  useEffect(() => () => { stopPolling() }, [stopPolling])
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current)
+      pollRef.current = null
+    }
+    setIsPendingResponse(false)
+  }, [])
+
+  const startPolling = useCallback((id: string) => {
+    stopPolling()
+    setIsPendingResponse(true)
+    let attempts = 0
+    pollRef.current = setInterval(async () => {
+      attempts++
+      if (attempts >= 6 || conversationIdRef.current !== id) {
+        stopPolling()
+        return
+      }
+      try {
+        const res = await fetch(`/api/conversations/${id}`)
+        if (!res.ok) return
+        const dbMessages: DbMessage[] = await res.json()
+        if (dbMessages[dbMessages.length - 1]?.role === 'assistant') {
+          setMessages(dbMessages.map(dbToUIMessage))
+          stopPolling()
+        }
+      } catch { /* non-blocking */ }
+    }, 3000)
+  }, [setMessages, stopPolling])
+
   const startNewChat = useCallback(() => {
     stop()
+    stopPolling()
     conversationIdRef.current = null
     setActiveId(null)
     setMessages([GREETING])
     setSidebarOpen(false)
-  }, [setMessages, stop])
+  }, [setMessages, stop, stopPolling])
 
   const selectConversation = useCallback(async (id: string) => {
     stop()
+    stopPolling()
     try {
       const res = await fetch(`/api/conversations/${id}`)
       if (!res.ok) return
       const dbMessages: DbMessage[] = await res.json()
       conversationIdRef.current = id
       setActiveId(id)
-      setMessages(dbMessages.length > 0 ? dbMessages.map(dbToUIMessage) : [GREETING])
+      const uiMessages = dbMessages.length > 0 ? dbMessages.map(dbToUIMessage) : [GREETING]
+      setMessages(uiMessages)
       setSidebarOpen(false)
+      // If last message is from user, the AI response is still being generated server-side
+      if (dbMessages.length > 0 && dbMessages[dbMessages.length - 1]?.role === 'user') {
+        startPolling(id)
+      }
     } catch { /* non-blocking */ }
-  }, [setMessages, stop])
+  }, [setMessages, stop, stopPolling, startPolling])
 
   const deleteConversation = useCallback(async (id: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -254,7 +295,7 @@ export const ChatInterface = () => {
               <p className="text-xs text-subtle">Asesor técnico agrícola · España</p>
             </div>
           </div>
-          {isLoading && (
+          {(isLoading || isPendingResponse) && (
             <span className="ml-auto text-xs text-subtle animate-pulse">Analizando...</span>
           )}
         </div>
@@ -264,7 +305,7 @@ export const ChatInterface = () => {
           {messages.map(msg => (
             <MessageBubble key={msg.id} message={msg} />
           ))}
-          {isLoading && messages[messages.length - 1]?.role === 'user' && (
+          {((isLoading && messages[messages.length - 1]?.role === 'user') || isPendingResponse) && (
             <div className="flex gap-3">
               <div className="size-8 rounded-full bg-primary flex items-center justify-center shrink-0">
                 <Bot className="size-4 text-surface" />
