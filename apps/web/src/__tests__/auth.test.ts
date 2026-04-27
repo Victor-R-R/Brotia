@@ -26,11 +26,7 @@ describe('authConfig', () => {
     expect(providerIds).toContain('google')
   })
 
-  it('has Apple provider configured', () => {
-    expect(providerIds).toContain('apple')
-  })
-
-  it('has Resend provider configured', () => {
-    expect(providerIds).toContain('resend')
+  it('has Credentials provider configured', () => {
+    expect(providerIds).toContain('credentials')
   })
 })
