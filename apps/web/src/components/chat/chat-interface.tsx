@@ -61,7 +61,7 @@ export const ChatInterface = () => {
     [],
   )
 
-  const { messages, status, sendMessage, setMessages } = useChat({
+  const { messages, status, sendMessage, setMessages, stop } = useChat({
     id:        'brotia-chat',
     transport,
     messages:  [GREETING],
@@ -82,11 +82,12 @@ export const ChatInterface = () => {
   }, [messages])
 
   const startNewChat = useCallback(() => {
+    stop()
     conversationIdRef.current = null
     setActiveId(null)
     setMessages([GREETING])
     setSidebarOpen(false)
-  }, [setMessages])
+  }, [setMessages, stop])
 
   const selectConversation = useCallback(async (id: string) => {
     try {
