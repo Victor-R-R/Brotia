@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { signOut } from 'next-auth/react'
-import { User, Save, Trash2, AlertTriangle } from 'lucide-react'
+import { User, Save, Trash2, AlertTriangle, LogOut } from 'lucide-react'
 
 type UserData = {
   id:       string
@@ -137,6 +137,17 @@ export const CompteForm = ({ user }: { user: UserData }) => {
         >
           <Save className="size-4" />
           {saving ? 'Guardando…' : 'Guardar cambios'}
+        </button>
+      </div>
+
+      {/* Sign out */}
+      <div className="bg-surface border border-border rounded-lg p-6 shadow-sm">
+        <button
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="flex items-center gap-2 border border-border text-muted px-4 py-2 rounded-md text-sm font-medium hover:text-foreground hover:border-border transition-colors"
+        >
+          <LogOut className="size-4" />
+          Cerrar sesión
         </button>
       </div>
 
