@@ -28,8 +28,15 @@ const GreenhouseDetailPage = async ({ params }: Props) => {
 
   if (!greenhouse) notFound()
 
-  const weather = await getWeather(greenhouse.lat, greenhouse.lng)
-  const alerts  = checkAlerts(weather)
+  let weather: Awaited<ReturnType<typeof getWeather>> | null = null
+  let alerts:  ReturnType<typeof checkAlerts> = []
+
+  try {
+    weather = await getWeather(greenhouse.lat, greenhouse.lng)
+    alerts  = checkAlerts(weather)
+  } catch {
+    // Open-Meteo indisponible — afficher un état vide
+  }
 
   return (
     <div className="max-w-3xl">
@@ -55,11 +62,15 @@ const GreenhouseDetailPage = async ({ params }: Props) => {
       {/* Weather */}
       <section className="bg-surface border border-border rounded-lg p-4 mb-4">
         <h2 className="font-heading text-sm font-semibold text-muted mb-3">Clima actual</h2>
-        <WeatherWidget
-          temperature={weather.current.temperature_2m}
-          humidity={weather.current.relative_humidity_2m}
-          wind={weather.current.wind_speed_10m}
-        />
+        {weather ? (
+          <WeatherWidget
+            temperature={weather.current.temperature_2m}
+            humidity={weather.current.relative_humidity_2m}
+            wind={weather.current.wind_speed_10m}
+          />
+        ) : (
+          <p className="text-sm text-subtle">Datos meteorológicos no disponibles.</p>
+        )}
       </section>
 
       {/* Alerts */}

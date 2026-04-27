@@ -1,9 +1,1 @@
-{
-  "outputDirectory": "apps/web/.next",
-  "crons": [
-    {
-      "path": "/api/alerts/check",
-      "schedule": "0 0 * * *"
-    }
-  ]
-}
+{}
