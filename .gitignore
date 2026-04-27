@@ -27,6 +27,7 @@ android/
 *.p8
 *.p12
 *.key
+*.pem
 *.mobileprovision
 *.orig.*
 
