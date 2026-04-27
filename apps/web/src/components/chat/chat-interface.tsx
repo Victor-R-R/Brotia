@@ -61,7 +61,7 @@ export const ChatInterface = () => {
     [],
   )
 
-  const { messages, status, sendMessage, setMessages } = useChat({
+  const { messages, status, sendMessage, setMessages, stop } = useChat({
     id:        'brotia-chat',
     transport,
     messages:  [GREETING],
@@ -82,13 +82,15 @@ export const ChatInterface = () => {
   }, [messages])
 
   const startNewChat = useCallback(() => {
+    stop()
     conversationIdRef.current = null
     setActiveId(null)
     setMessages([GREETING])
     setSidebarOpen(false)
-  }, [setMessages])
+  }, [setMessages, stop])
 
   const selectConversation = useCallback(async (id: string) => {
+    stop()
     try {
       const res = await fetch(`/api/conversations/${id}`)
       if (!res.ok) return
@@ -98,7 +100,7 @@ export const ChatInterface = () => {
       setMessages(dbMessages.length > 0 ? dbMessages.map(dbToUIMessage) : [GREETING])
       setSidebarOpen(false)
     } catch { /* non-blocking */ }
-  }, [setMessages])
+  }, [setMessages, stop])
 
   const deleteConversation = useCallback(async (id: string, e: React.MouseEvent) => {
     e.stopPropagation()

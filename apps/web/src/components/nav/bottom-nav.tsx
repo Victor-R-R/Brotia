@@ -9,7 +9,7 @@ const navItems = [
   { href: '/cultivos',     icon: Leaf,            label: 'Cultivos'  },
   { href: '/estadisticas', icon: BarChart2,        label: 'Stats'     },
   { href: '/chat',         icon: Bot,             label: 'IA'        },
-  { href: '/ajustes',      icon: Settings,        label: 'Ajustes'   },
+  { href: '/compte',       icon: Settings,        label: 'Cuenta'    },
 ]
 
 export const BottomNav = () => {

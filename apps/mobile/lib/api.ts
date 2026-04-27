@@ -31,6 +31,16 @@ export type CropListItem = {
   greenhouse:        { id: string; name: string }
 }
 
+export type UserProfile = {
+  id:       string
+  email:    string
+  name:     string | null
+  lastName: string | null
+  phone:    string | null
+  address:  string | null
+  provider: string | null
+}
+
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
 export const api = {
@@ -59,6 +69,31 @@ export const api = {
       const res = await fetch(`${API_BASE}/api/greenhouses/${id}/weather`, { credentials: 'include' })
       if (!res.ok) throw new Error('Failed to fetch weather')
       return res.json() as Promise<WeatherData>
+    },
+  },
+
+  user: {
+    get: async (): Promise<UserProfile> => {
+      const res = await fetch(`${API_BASE}/api/user`, { credentials: 'include' })
+      if (!res.ok) throw new Error('Failed to fetch user')
+      return res.json() as Promise<UserProfile>
+    },
+    update: async (data: { name?: string; lastName?: string; phone?: string; address?: string }): Promise<UserProfile> => {
+      const res = await fetch(`${API_BASE}/api/user`, {
+        method:      'PUT',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify(data),
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to update user')
+      return res.json() as Promise<UserProfile>
+    },
+    delete: async (): Promise<void> => {
+      const res = await fetch(`${API_BASE}/api/user`, {
+        method:      'DELETE',
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to delete account')
     },
   },
 
