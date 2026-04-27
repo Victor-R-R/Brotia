@@ -11,7 +11,7 @@ const navItems = [
 ]
 
 export const Sidebar = () => (
-  <aside className="w-60 bg-surface border-r border-border flex flex-col">
+  <aside className="hidden md:flex w-60 bg-surface border-r border-border flex-col">
     <div className="px-4 py-5 border-b border-border">
       <span className="font-heading font-bold text-xl text-primary">Brotia</span>
     </div>

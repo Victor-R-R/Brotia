@@ -21,6 +21,16 @@ export type WeatherData = {
 
 export type CreatedGreenhouse = { id: string }
 
+export type CropListItem = {
+  id:                string
+  name:              string
+  variety:           string | null
+  plantedAt:         string
+  expectedHarvestAt: string | null
+  status:            'GROWING' | 'HARVESTED' | 'FAILED'
+  greenhouse:        { id: string; name: string }
+}
+
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
 export const api = {
@@ -49,6 +59,30 @@ export const api = {
       const res = await fetch(`${API_BASE}/api/greenhouses/${id}/weather`, { credentials: 'include' })
       if (!res.ok) throw new Error('Failed to fetch weather')
       return res.json() as Promise<WeatherData>
+    },
+  },
+
+  crops: {
+    list: async (): Promise<CropListItem[]> => {
+      const res = await fetch(`${API_BASE}/api/crops`, { credentials: 'include' })
+      if (!res.ok) throw new Error('Failed to fetch crops')
+      return res.json() as Promise<CropListItem[]>
+    },
+    create: async (data: {
+      name:              string
+      variety?:          string
+      plantedAt:         string
+      expectedHarvestAt?: string
+      greenhouseId:      string
+    }): Promise<{ id: string }> => {
+      const res = await fetch(`${API_BASE}/api/crops`, {
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify(data),
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to create crop')
+      return res.json() as Promise<{ id: string }>
     },
   },
 }
