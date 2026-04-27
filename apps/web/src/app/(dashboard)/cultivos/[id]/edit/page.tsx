@@ -21,7 +21,9 @@ const CropEditPage = () => {
   const [name,              setName]              = useState('')
   const [variety,           setVariety]           = useState('')
   const [status,            setStatus]            = useState<Status>('GROWING')
+  const [plantedAt,         setPlantedAt]         = useState('')
   const [expectedHarvestAt, setExpectedHarvestAt] = useState('')
+  const [harvestedAt,       setHarvestedAt]       = useState('')
   const [loading,           setLoading]           = useState(false)
   const [fetched,           setFetched]           = useState(false)
   const [error,             setError]             = useState<string | null>(null)
@@ -33,9 +35,19 @@ const CropEditPage = () => {
         setName(crop.name ?? '')
         setVariety(crop.variety ?? '')
         setStatus(crop.status ?? 'GROWING')
+        setPlantedAt(
+          crop.plantedAt
+            ? new Date(crop.plantedAt).toISOString().slice(0, 10)
+            : ''
+        )
         setExpectedHarvestAt(
           crop.expectedHarvestAt
             ? new Date(crop.expectedHarvestAt).toISOString().slice(0, 10)
+            : ''
+        )
+        setHarvestedAt(
+          crop.harvestedAt
+            ? new Date(crop.harvestedAt).toISOString().slice(0, 10)
             : ''
         )
         setFetched(true)
@@ -50,7 +62,9 @@ const CropEditPage = () => {
     try {
       const body: Record<string, unknown> = { name, status }
       if (variety.trim())           body.variety           = variety.trim()
+      if (plantedAt.trim())         body.plantedAt         = new Date(plantedAt).toISOString()
       if (expectedHarvestAt.trim()) body.expectedHarvestAt = expectedHarvestAt
+      if (harvestedAt.trim())       body.harvestedAt       = harvestedAt
 
       const res = await fetch(`/api/crops/${id}`, {
         method:  'PUT',
@@ -118,6 +132,20 @@ const CropEditPage = () => {
         </div>
 
         <div>
+          <label htmlFor="plantedAt" className="block text-sm font-medium text-foreground mb-1.5">
+            Fecha de siembra
+          </label>
+          <input
+            id="plantedAt"
+            type="date"
+            value={plantedAt}
+            onChange={e => setPlantedAt(e.target.value)}
+            required
+            className={inputClass}
+          />
+        </div>
+
+        <div>
           <label htmlFor="status" className="block text-sm font-medium text-foreground mb-1.5">Estado</label>
           <select
             id="status"
@@ -141,6 +169,20 @@ const CropEditPage = () => {
             type="date"
             value={expectedHarvestAt}
             onChange={e => setExpectedHarvestAt(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="harvestedAt" className="block text-sm font-medium text-foreground mb-1.5">
+            Fecha de fin de cultivo
+            <span className="text-subtle font-normal ml-1">— opcional</span>
+          </label>
+          <input
+            id="harvestedAt"
+            type="date"
+            value={harvestedAt}
+            onChange={e => setHarvestedAt(e.target.value)}
             className={inputClass}
           />
         </div>

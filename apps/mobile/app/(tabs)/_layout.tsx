@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router'
-import { LayoutDashboard, Leaf, Bot, Settings } from 'lucide-react-native'
+import { LayoutDashboard, Leaf, Bot, Settings, Users } from 'lucide-react-native'
 import { palette } from '@/lib/theme'
 
 const TabsLayout = () => (
@@ -34,6 +34,13 @@ const TabsLayout = () => (
       options={{
         title:      'Brotia IA',
         tabBarIcon: ({ color }) => <Bot size={22} color={color} />,
+      }}
+    />
+    <Tabs.Screen
+      name="community"
+      options={{
+        title:      'Comunidad',
+        tabBarIcon: ({ color }) => <Users size={22} color={color} />,
       }}
     />
     <Tabs.Screen

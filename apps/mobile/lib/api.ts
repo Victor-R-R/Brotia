@@ -41,6 +41,43 @@ export type UserProfile = {
   provider: string | null
 }
 
+export type ForumUser = {
+  name:     string | null
+  lastName: string | null
+  avatar:   string | null
+}
+
+export type ThreadSummary = {
+  id:             string
+  title:          string
+  category:       string
+  contentPreview: string
+  images:         string[]
+  createdAt:      string
+  userId:         string
+  user:           ForumUser
+  _count:         { replies: number; likes: number }
+  hasLiked:       boolean
+}
+
+export type ReplyItem = {
+  id:        string
+  content:   string
+  images:    string[]
+  createdAt: string
+  userId:    string
+  user:      ForumUser
+  _count:    { likes: number }
+  hasLiked:  boolean
+}
+
+export type ThreadDetail = Omit<ThreadSummary, 'contentPreview'> & {
+  content: string
+  replies: ReplyItem[]
+}
+
+export type LikeResult = { liked: boolean; count: number }
+
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
 export const api = {
@@ -118,6 +155,71 @@ export const api = {
       })
       if (!res.ok) throw new Error('Failed to create crop')
       return res.json() as Promise<{ id: string }>
+    },
+  },
+
+  community: {
+    list: async (category?: string, page = 1): Promise<ThreadSummary[]> => {
+      const params = new URLSearchParams({ page: String(page) })
+      if (category) params.set('category', category)
+      const res = await fetch(`${API_BASE}/api/community?${params}`, { credentials: 'include' })
+      if (!res.ok) throw new Error('Failed to fetch threads')
+      return res.json() as Promise<ThreadSummary[]>
+    },
+    get: async (id: string): Promise<ThreadDetail> => {
+      const res = await fetch(`${API_BASE}/api/community/${id}`, { credentials: 'include' })
+      if (!res.ok) throw new Error('Failed to fetch thread')
+      return res.json() as Promise<ThreadDetail>
+    },
+    create: async (data: { title: string; content: string; category: string; images: string[] }): Promise<ThreadDetail> => {
+      const res = await fetch(`${API_BASE}/api/community`, {
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify(data),
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to create thread')
+      return res.json() as Promise<ThreadDetail>
+    },
+    reply: async (threadId: string, data: { content: string; images: string[] }): Promise<ReplyItem> => {
+      const res = await fetch(`${API_BASE}/api/community/${threadId}/replies`, {
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify(data),
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to add reply')
+      return res.json() as Promise<ReplyItem>
+    },
+    likeThread: async (threadId: string): Promise<LikeResult> => {
+      const res = await fetch(`${API_BASE}/api/community/${threadId}/like`, {
+        method:      'POST',
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to like thread')
+      return res.json() as Promise<LikeResult>
+    },
+    likeReply: async (replyId: string): Promise<LikeResult> => {
+      const res = await fetch(`${API_BASE}/api/community/replies/${replyId}/like`, {
+        method:      'POST',
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to like reply')
+      return res.json() as Promise<LikeResult>
+    },
+    deleteThread: async (id: string): Promise<void> => {
+      const res = await fetch(`${API_BASE}/api/community/${id}`, {
+        method:      'DELETE',
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to delete thread')
+    },
+    deleteReply: async (id: string): Promise<void> => {
+      const res = await fetch(`${API_BASE}/api/community/replies/${id}`, {
+        method:      'DELETE',
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to delete reply')
     },
   },
 }

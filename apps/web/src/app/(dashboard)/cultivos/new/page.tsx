@@ -15,6 +15,7 @@ const NewCropPage = () => {
   const [variety,           setVariety]           = useState('')
   const [plantedAt,         setPlantedAt]         = useState('')
   const [expectedHarvestAt, setExpectedHarvestAt] = useState('')
+  const [harvestedAt,       setHarvestedAt]       = useState('')
   const [greenhouseId,      setGreenhouseId]      = useState('')
   const [greenhouses,       setGreenhouses]       = useState<GreenhouseOption[]>([])
   const [loading,           setLoading]           = useState(false)
@@ -47,6 +48,7 @@ const NewCropPage = () => {
       }
       if (variety.trim())           body.variety           = variety.trim()
       if (expectedHarvestAt.trim()) body.expectedHarvestAt = new Date(expectedHarvestAt).toISOString()
+      if (harvestedAt.trim())       body.harvestedAt       = new Date(harvestedAt).toISOString()
 
       const res = await fetch('/api/crops', {
         method:  'POST',
@@ -134,6 +136,17 @@ const NewCropPage = () => {
           <input
             id="expectedHarvestAt" type="date" value={expectedHarvestAt}
             onChange={e => setExpectedHarvestAt(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="harvestedAt" className="block text-sm font-medium text-foreground mb-1.5">
+            Fecha de fin de cultivo <span className="text-subtle font-normal">— opcional</span>
+          </label>
+          <input
+            id="harvestedAt" type="date" value={harvestedAt}
+            onChange={e => setHarvestedAt(e.target.value)}
             className={inputClass}
           />
         </div>

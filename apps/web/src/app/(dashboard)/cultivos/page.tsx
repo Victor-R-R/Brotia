@@ -72,20 +72,29 @@ const CultivosPage = async () => {
                 <p className="text-xs text-subtle mb-1">
                   Invernadero: <span className="text-muted">{crop.greenhouse.name}</span>
                 </p>
-                <p className="text-xs text-subtle">
-                  Plantado:{' '}
-                  {new Date(crop.plantedAt).toLocaleDateString('es-ES', {
-                    day: 'numeric', month: 'long', year: 'numeric',
-                  })}
-                </p>
-                {crop.expectedHarvestAt ? (
-                  <p className="text-xs text-subtle mt-1">
-                    Cosecha prevista:{' '}
-                    {new Date(crop.expectedHarvestAt).toLocaleDateString('es-ES', {
-                      day: 'numeric', month: 'long', year: 'numeric',
+                <div className="flex items-center gap-1.5 text-xs text-subtle mt-1">
+                  <span>
+                    {new Date(crop.plantedAt).toLocaleDateString('es-ES', {
+                      day: 'numeric', month: 'short', year: 'numeric',
                     })}
-                  </p>
-                ) : null}
+                  </span>
+                  <span className="text-border">→</span>
+                  {crop.harvestedAt ? (
+                    <span className="text-muted">
+                      {new Date(crop.harvestedAt).toLocaleDateString('es-ES', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      })}
+                    </span>
+                  ) : crop.expectedHarvestAt ? (
+                    <span className="text-subtle italic">
+                      {new Date(crop.expectedHarvestAt).toLocaleDateString('es-ES', {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      })} (prevista)
+                    </span>
+                  ) : (
+                    <span className="text-border italic">sin fecha fin</span>
+                  )}
+                </div>
 
                 <CropActions id={crop.id} />
               </Link>

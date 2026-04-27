@@ -5,14 +5,17 @@ export const createCropSchema = z.object({
   variety:           z.string().max(100).optional(),
   plantedAt:         z.coerce.date(),
   expectedHarvestAt: z.coerce.date().optional(),
+  harvestedAt:       z.coerce.date().optional(),
   greenhouseId:      z.string().min(1),
 })
 
 export const updateCropSchema = z.object({
   name:              z.string().min(1).max(100).optional(),
   variety:           z.string().max(100).optional(),
+  plantedAt:         z.coerce.date().optional(),
   status:            z.enum(['GROWING', 'HARVESTED', 'FAILED']).optional(),
   expectedHarvestAt: z.coerce.date().optional().nullable(),
+  harvestedAt:       z.coerce.date().optional().nullable(),
 })
 
 export type CreateCropInput = z.infer<typeof createCropSchema>

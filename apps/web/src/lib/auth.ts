@@ -3,13 +3,15 @@ import Credentials from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import bcrypt from 'bcryptjs'
+import { cookies } from 'next/headers'
 import { db } from '@brotia/db'
 
 declare module 'next-auth' {
   interface Session {
-    user: { id: string } & DefaultSession['user']
+    user: { id: string; role: string; _impersonatedBy?: string } & DefaultSession['user']
   }
 }
+
 
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(db),
@@ -45,13 +47,24 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    jwt: ({ token, user }) => {
-      if (user) token.id = user.id
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.id = user.id
+        const dbUser = await db.user.findUnique({
+          where: { id: user.id },
+          select: { role: true },
+        })
+        ;(token as Record<string, unknown>).role = dbUser?.role ?? 'USER'
+      }
       return token
     },
     session: ({ session, token }) => ({
       ...session,
-      user: { ...session.user, id: token.sub! },
+      user: {
+        ...session.user,
+        id: token.sub!,
+        role: ((token as Record<string, unknown>).role as string) ?? 'USER',
+      },
     }),
   },
   pages: {
@@ -69,12 +82,40 @@ const {
 export { handlers, signIn, signOut }
 
 /**
- * Wraps NextAuth auth() to return null on JWTSessionError (stale cookies from
- * previous database-session strategy) instead of throwing.
+ * Wraps NextAuth auth() to return null on JWTSessionError and handle superadmin impersonation.
+ * When the brotia_impersonate cookie is set and the real user is SUPERADMIN,
+ * the session is transparently replaced with the target user's data.
  */
 export const auth = async () => {
   try {
-    return await _auth()
+    const session = await _auth()
+
+    if (session?.user?.role === 'SUPERADMIN') {
+      const cookieStore = await cookies()
+      const impersonateId = cookieStore.get('brotia_impersonate')?.value
+      if (impersonateId) {
+        const target = await db.user.findUnique({
+          where: { id: impersonateId },
+          select: { id: true, email: true, name: true, image: true, role: true },
+        })
+        if (target) {
+          return {
+            ...session,
+            user: {
+              ...session.user,
+              id: target.id,
+              email: target.email,
+              name: target.name,
+              image: target.image,
+              role: target.role as string,
+              _impersonatedBy: session.user.id,
+            },
+          }
+        }
+      }
+    }
+
+    return session
   } catch (e) {
     if (
       e instanceof Error &&
