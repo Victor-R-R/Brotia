@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
-import { Shield } from 'lucide-react'
+import { Shield, LayoutDashboard, Users, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -40,9 +40,33 @@ const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
         </div>
       </aside>
 
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-6 pb-24 md:pb-6 overflow-auto">
         {children}
       </main>
+
+      <nav className="fixed bottom-0 inset-x-0 z-50 bg-surface border-t border-border flex md:hidden">
+        <Link
+          href="/admin"
+          className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-xs text-muted transition-colors hover:text-foreground"
+        >
+          <Shield className="size-5" />
+          <span>Overview</span>
+        </Link>
+        <Link
+          href="/admin/users"
+          className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-xs text-muted transition-colors hover:text-foreground"
+        >
+          <Users className="size-5" />
+          <span>Usuarios</span>
+        </Link>
+        <Link
+          href="/dashboard"
+          className="flex-1 flex flex-col items-center justify-center gap-1 py-3 text-xs text-muted transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-5" />
+          <span>Dashboard</span>
+        </Link>
+      </nav>
     </div>
   )
 }
