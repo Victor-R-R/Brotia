@@ -119,7 +119,17 @@ export const POST = async (req: Request) => {
       },
     })
 
-    const modelMessages = await convertToModelMessages(messages)
+    // Strip non-data-URL file parts from historical messages — Anthropic can't fetch
+    // private blob URLs or internal proxy URLs. Only the last message may carry a real data URL.
+    const messagesForModel: UIMessage[] = messages.map((msg, idx) => {
+      if (idx === messages.length - 1) return msg
+      return {
+        ...msg,
+        parts: msg.parts.filter(p => !isFileUIPart(p) || p.url.startsWith('data:')),
+      }
+    })
+
+    const modelMessages = await convertToModelMessages(messagesForModel)
 
     const result = streamText({
       model:    anthropic('claude-sonnet-4-6'),
