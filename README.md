@@ -27,6 +27,7 @@ Track your greenhouses, crops, weather, and automated climate alerts — all in 
 | 📊 | **Statistics dashboard** | Interactive charts for harvest production by month, crop, and greenhouse — with multi-greenhouse filtering and inter-year comparison. |
 | 🤖 | **AI agricultural advisor** | Chat with Brotia IA — an expert agronomic assistant specialized in Spain. Identifies pests, diseases, and gives treatment recommendations. Supports image upload. Conversation history persisted per user. |
 | 📱 | **Mobile app** | Expo companion app with location access, crop tracking, and full AI chat on-site. |
+| 🛡️ | **Admin panel** | Superadmin dashboard with user management and role assignment. Mobile-accessible via bottom nav. |
 
 ---
 
@@ -49,7 +50,7 @@ Track your greenhouses, crops, weather, and automated climate alerts — all in 
 | 🌐 Web | Next.js 16 + React 19 |
 | 📱 Mobile | Expo 54 + React Native 0.81 |
 | 🎨 Styling | Tailwind CSS v4 |
-| 🔐 Auth | NextAuth v5 — Google OAuth + Resend magic link |
+| 🔐 Auth | NextAuth v5 — Google OAuth + email/password (bcrypt) |
 | 🗄️ Database | PostgreSQL via [Neon](https://neon.tech) (serverless) |
 | 🔷 ORM | Prisma 6 + `@prisma/adapter-neon` |
 | 🗺️ Map | MapLibre GL 5 + react-map-gl |
@@ -83,7 +84,8 @@ brotia/
 - pnpm 9+
 - A [Neon](https://neon.tech) database (or any PostgreSQL instance)
 - Google OAuth credentials
-- [Resend](https://resend.com) API key (email magic links)
+- [Resend](https://resend.com) API key (welcome emails)
+- [Anthropic](https://anthropic.com) API key (AI chat)
 
 ### Environment variables
 
@@ -96,10 +98,11 @@ AUTH_SECRET=...
 AUTH_GOOGLE_ID=...
 AUTH_GOOGLE_SECRET=...
 
-RESEND_API_KEY=...
-AUTH_RESEND_FROM=noreply@yourdomain.com
+AUTH_RESEND_KEY=...       # Resend SDK — welcome emails on registration
 
-CRON_SECRET=...          # Shared secret for the alerts cron endpoint
+ANTHROPIC_API_KEY=...     # AI chat feature
+
+CRON_SECRET=...           # Shared secret for the alerts cron endpoint
 ```
 
 ### Install and run
@@ -142,7 +145,24 @@ DEL  /api/conversations/:id             Delete a conversation and its messages
 POST /api/chat                          Streaming AI chat (Anthropic claude-sonnet-4-6)
 GET  /api/crops                         List user's crops
 POST /api/crops                         Create a crop
+GET  /api/estadisticas                  Dashboard stats — greenhouse count, crop status, harvest totals, alert breakdown
+GET  /api/admin/users                   List all users (SUPERADMIN only)
+PATCH /api/admin/users/:id/role         Update user role (SUPERADMIN only)
 ```
+
+---
+
+## 🔒 Security
+
+| Layer | Mechanism |
+|---|---|
+| **Session auth** | JWT via NextAuth v5 — every dashboard route checks `session.user.id` server-side |
+| **Password storage** | bcrypt — plaintext passwords never stored |
+| **Admin access** | Role `SUPERADMIN` baked into JWT at login — admin routes return 403 for any other role |
+| **Cron endpoint** | `POST /api/alerts/check` requires `Authorization: Bearer CRON_SECRET` |
+| **Data isolation** | All DB queries are scoped to `session.user.id` — users can only access their own data |
+| **Input validation** | Zod schemas on all API inputs via `@brotia/api` |
+| **Secrets** | All credentials in environment variables — never committed to the repo |
 
 ---
 
