@@ -27,11 +27,16 @@ const GREETING: UIMessage = {
   metadata: undefined,
 }
 
+const toProxiedUrl = (url: string) =>
+  url.includes('vercel-storage.com')
+    ? `/api/blob-proxy?url=${encodeURIComponent(url)}`
+    : url
+
 const dbToUIMessage = (m: DbMessage): UIMessage => ({
   id:   m.id,
   role: m.role as 'user' | 'assistant',
   parts: [
-    ...(m.imageUrl ? [{ type: 'file' as const, mediaType: 'image/jpeg', url: m.imageUrl }] : []),
+    ...(m.imageUrl ? [{ type: 'file' as const, mediaType: 'image/jpeg', url: toProxiedUrl(m.imageUrl) }] : []),
     { type: 'text' as const, text: m.content },
   ],
   metadata: undefined,
@@ -317,7 +322,7 @@ export const ChatInterface = () => {
               placeholder="Describe el problema de tu cultivo..."
               rows={1}
               disabled={isLoading}
-              className="flex-1 resize-none bg-surface-alt border border-border rounded-md px-3 py-2.5 text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:opacity-50 max-h-32 overflow-y-auto"
+              className="flex-1 resize-none bg-surface-alt border border-border rounded-md px-3 py-2.5 text-base md:text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:opacity-50 max-h-32 overflow-y-auto"
               style={{ minHeight: '2.5rem' }}
               onInput={e => {
                 const el = e.currentTarget
