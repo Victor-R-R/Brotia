@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowLeft, Leaf, FileText } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { db } from '@brotia/db'
+import type { Note } from '@brotia/db'
 import { getWeather, checkAlerts } from '@/lib/weather'
 import { WeatherWidget } from '@/components/greenhouse/weather-widget'
 import { AlertBadge } from '@/components/ui/alert-badge'
@@ -92,7 +93,7 @@ const GreenhouseDetailPage = async ({ params }: Props) => {
             Últimas notas
           </h2>
           <ul className="flex flex-col gap-3">
-            {greenhouse.notes.map(note => (
+            {greenhouse.notes.map((note: Note) => (
               <li key={note.id} className="text-sm border-b border-border-subtle pb-3 last:border-0 last:pb-0">
                 <p className="text-foreground">{note.content}</p>
                 <p className="text-xs text-subtle mt-1">

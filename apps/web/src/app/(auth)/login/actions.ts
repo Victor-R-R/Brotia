@@ -3,7 +3,7 @@
 import { signIn } from '@/lib/auth'
 
 export const signInWithGoogle = async () => {
-  await signIn('google', { redirectTo: '/' })
+  await signIn('google', { redirectTo: '/dashboard' })
 }
 
 export const signInWithEmail = async (fd: FormData) => {

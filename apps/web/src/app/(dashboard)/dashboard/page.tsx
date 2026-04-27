@@ -1,14 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
 import { auth } from '@/lib/auth'
 import { db } from '@brotia/db'
 import { GreenhouseCard } from '@/components/greenhouse/greenhouse-card'
-
-const GreenhouseMap = dynamic(
-  () => import('@/components/greenhouse/greenhouse-map').then(m => m.GreenhouseMap),
-  { ssr: false }
-)
+import { GreenhouseMapDynamic } from '@/components/greenhouse/greenhouse-map-dynamic'
 
 const GreenhousesPage = async () => {
   const session = await auth()
@@ -43,7 +38,7 @@ const GreenhousesPage = async () => {
       {greenhouses.length > 0 ? (
         <>
           <div className="h-72 mb-6 rounded-lg overflow-hidden">
-            <GreenhouseMap
+            <GreenhouseMapDynamic
               markers={greenhouses.map(gh => ({
                 id:   gh.id,
                 name: gh.name,

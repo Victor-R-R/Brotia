@@ -3,7 +3,7 @@
 import { useRef, useEffect, memo } from 'react'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
-type Marker = {
+export type Marker = {
   id:   string
   name: string
   lat:  number
