@@ -11,8 +11,16 @@ export const weatherResponseSchema = z.object({
     time:                      z.array(z.string()),
     temperature_2m:            z.array(z.number()),
     precipitation_probability: z.array(z.number()),
-    showers_sum:               z.array(z.number()).optional(),
+    showers:                   z.array(z.number()).optional(),
   }),
+  daily: z.object({
+    time:                          z.array(z.string()),
+    temperature_2m_max:            z.array(z.number()),
+    temperature_2m_min:            z.array(z.number()),
+    precipitation_probability_max: z.array(z.number()),
+    wind_speed_10m_max:            z.array(z.number()),
+    weathercode:                   z.array(z.number()),
+  }).optional(),
 })
 
 export type WeatherResponse = z.infer<typeof weatherResponseSchema>

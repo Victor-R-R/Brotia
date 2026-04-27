@@ -1,17 +1,18 @@
 import Link from 'next/link'
-import { MapPin } from 'lucide-react'
+import { MapPin, Leaf } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { WeatherWidget } from './weather-widget'
 
 type GreenhouseCardProps = {
-  id:          string
-  name:        string
-  lat:         number
-  lng:         number
-  area?:       number | null
-  temperature?: number
-  humidity?:   number
-  wind?:       number
+  id:              string
+  name:            string
+  lat:             number
+  lng:             number
+  area?:           number | null
+  temperature?:    number
+  humidity?:       number
+  wind?:           number
+  activeCropName?: string | null
 }
 
 export const GreenhouseCard = ({
@@ -23,6 +24,7 @@ export const GreenhouseCard = ({
   temperature,
   humidity,
   wind,
+  activeCropName,
 }: GreenhouseCardProps) => (
   <Link href={`/greenhouse/${id}`} className="block hover:opacity-90 transition-opacity">
     <Card>
@@ -40,10 +42,17 @@ export const GreenhouseCard = ({
         {lat.toFixed(4)}, {lng.toFixed(4)}
       </div>
 
+      {activeCropName ? (
+        <div className="flex items-center gap-1.5 text-xs text-muted mb-3">
+          <Leaf className="size-3 text-primary" />
+          <span>{activeCropName}</span>
+        </div>
+      ) : null}
+
       {temperature !== undefined && humidity !== undefined && wind !== undefined ? (
         <WeatherWidget temperature={temperature} humidity={humidity} wind={wind} />
       ) : (
-        <p className="text-xs text-subtle">Cargando clima…</p>
+        <p className="text-xs text-subtle">Clima no disponible</p>
       )}
     </Card>
   </Link>

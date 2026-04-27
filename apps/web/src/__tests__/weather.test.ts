@@ -13,7 +13,7 @@ const base: WeatherResponse = {
     time:                      ['2026-04-26T00:00', '2026-04-26T01:00'],
     temperature_2m:            [20, 20],
     precipitation_probability: [10, 15],
-    showers_sum:               [0, 0],
+    showers:                   [0, 0],
   },
 }
 

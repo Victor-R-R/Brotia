@@ -50,7 +50,7 @@ const CultivosPage = async () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {crops.map(crop => {
+          {crops.map((crop: typeof crops[number]) => {
             const st = statusConfig[crop.status]
             return (
               <div key={crop.id} className="bg-surface border border-border rounded-lg p-4">
