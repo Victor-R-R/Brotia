@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "pnpm --filter @brotia/web dev",
+    "dev:mobile": "pnpm --filter @brotia/mobile start",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test"
