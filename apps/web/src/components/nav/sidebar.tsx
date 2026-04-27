@@ -8,7 +8,7 @@ const navItems = [
   { href: '/cultivos',      icon: Leaf,            label: 'Cultivos'      },
   { href: '/estadisticas',  icon: BarChart2,        label: 'Estadísticas'  },
   { href: '/chat',          icon: Bot,             label: 'Brotia IA'     },
-  { href: '/ajustes',       icon: Settings,        label: 'Ajustes'       },
+  { href: '/compte',         icon: Settings,        label: 'Mi cuenta'     },
 ]
 
 export const Sidebar = () => (

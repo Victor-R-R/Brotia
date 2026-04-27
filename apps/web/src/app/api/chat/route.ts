@@ -146,6 +146,9 @@ export const POST = async (req: Request) => {
       },
     })
 
+    // Ensure onFinish fires even if the client disconnects mid-stream
+    result.consumeStream()
+
     return result.toUIMessageStreamResponse()
   } catch (err) {
     console.error('[/api/chat]', err)
