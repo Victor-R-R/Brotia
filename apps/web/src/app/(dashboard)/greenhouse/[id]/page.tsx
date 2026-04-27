@@ -1,12 +1,25 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Leaf, FileText } from 'lucide-react'
+import { ArrowLeft, Leaf, FileText, Wind } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { db } from '@brotia/db'
 import type { Note } from '@brotia/db'
 import { getWeather, checkAlerts } from '@/lib/weather'
 import { WeatherWidget } from '@/components/greenhouse/weather-widget'
 import { AlertBadge } from '@/components/ui/alert-badge'
+
+const wmoIcon = (code: number): string => {
+  if (code === 0)               return '☀️'
+  if (code <= 2)                return '🌤️'
+  if (code <= 3)                return '☁️'
+  if (code <= 49)               return '🌫️'
+  if (code <= 59)               return '🌦️'
+  if (code <= 69)               return '🌧️'
+  if (code <= 79)               return '🌨️'
+  if (code <= 84)               return '🌧️'
+  if (code <= 99)               return '⛈️'
+  return '🌡️'
+}
 
 type Props = {
   params: Promise<{ id: string }>
@@ -72,6 +85,37 @@ const GreenhouseDetailPage = async ({ params }: Props) => {
           <p className="text-sm text-subtle">Datos meteorológicos no disponibles.</p>
         )}
       </section>
+
+      {/* 7-day forecast */}
+      {weather?.daily ? (
+        <section className="bg-surface border border-border rounded-lg p-4 mb-4">
+          <h2 className="font-heading text-sm font-semibold text-muted mb-3">Próximos 7 días</h2>
+          <div className="flex flex-col divide-y divide-border-subtle">
+            {weather.daily.time.map((dateStr, i) => {
+              const max   = weather!.daily!.temperature_2m_max[i]
+              const min   = weather!.daily!.temperature_2m_min[i]
+              const prob  = weather!.daily!.precipitation_probability_max[i]
+              const wind  = weather!.daily!.wind_speed_10m_max[i]
+              const code  = weather!.daily!.weathercode[i]
+              const label = new Date(dateStr).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })
+              const icon  = wmoIcon(code)
+              return (
+                <div key={dateStr} className="flex items-center justify-between py-2 text-sm">
+                  <span className="w-28 text-muted capitalize">{label}</span>
+                  <span className="text-base">{icon}</span>
+                  <span className="flex items-center gap-1 text-subtle text-xs w-16">
+                    <Wind className="size-3 text-primary" />{wind.toFixed(0)} km/h
+                  </span>
+                  <span className="text-subtle text-xs w-12 text-right">{prob}% 💧</span>
+                  <span className="text-foreground font-medium w-20 text-right">
+                    {min.toFixed(0)}° / {max.toFixed(0)}°
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ) : null}
 
       {/* Alerts */}
       {alerts.length > 0 ? (

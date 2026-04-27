@@ -16,7 +16,8 @@ export const getWeather = async (lat: number, lng: number): Promise<WeatherRespo
   url.searchParams.set('latitude',      lat.toString())
   url.searchParams.set('longitude',     lng.toString())
   url.searchParams.set('current',       'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation')
-  url.searchParams.set('hourly',        'temperature_2m,precipitation_probability,showers_sum')
+  url.searchParams.set('hourly',        'temperature_2m,precipitation_probability,showers')
+  url.searchParams.set('daily',         'temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,weathercode')
   url.searchParams.set('forecast_days', '7')
   url.searchParams.set('timezone',      'auto')
 
@@ -58,7 +59,7 @@ export const checkAlerts = (weather: WeatherResponse): AlertCheckResult[] => {
   }
 
   const precipProbs = (hourly.precipitation_probability ?? []).slice(0, ALERT_HORIZON_HOURS)
-  const showers     = (hourly.showers_sum ?? []).slice(0, ALERT_HORIZON_HOURS)
+  const showers     = (hourly.showers ?? []).slice(0, ALERT_HORIZON_HOURS)
 
   const maxPrecipProb = precipProbs.length > 0 ? Math.max(...precipProbs) : 0
   const hasShowers    = showers.some(v => v > 0)
