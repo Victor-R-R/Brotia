@@ -25,7 +25,8 @@ Track your greenhouses, crops, weather, and automated climate alerts — all in 
 | 🌤️ | **Live weather** | Per-greenhouse real-time weather via [Open-Meteo](https://open-meteo.com/) (free, no key needed). |
 | 🚨 | **Automated alerts** | Hourly cron checks weather for every greenhouse and creates severity-rated alerts. |
 | 📊 | **Statistics dashboard** | Interactive charts for harvest production by month, crop, and greenhouse — with multi-greenhouse filtering and inter-year comparison. |
-| 📱 | **Mobile app** | Expo companion app with location access for on-site use. |
+| 🤖 | **AI agricultural advisor** | Chat with Brotia IA — an expert agronomic assistant specialized in Spain. Identifies pests, diseases, and gives treatment recommendations. Supports image upload. Conversation history persisted per user. |
+| 📱 | **Mobile app** | Expo companion app with location access, crop tracking, and full AI chat on-site. |
 
 ---
 
@@ -134,6 +135,13 @@ PUT  /api/greenhouses/:id               Update a greenhouse
 DEL  /api/greenhouses/:id               Delete a greenhouse
 GET  /api/greenhouses/:id/weather       Current weather + alert check
 POST /api/alerts/check                  Cron endpoint — checks all greenhouses (Bearer CRON_SECRET)
+GET  /api/conversations                 List user's chat conversations
+POST /api/conversations                 Create a new conversation
+GET  /api/conversations/:id             Get messages for a conversation
+DEL  /api/conversations/:id             Delete a conversation and its messages
+POST /api/chat                          Streaming AI chat (Anthropic claude-sonnet-4-6)
+GET  /api/crops                         List user's crops
+POST /api/crops                         Create a crop
 ```
 
 ---

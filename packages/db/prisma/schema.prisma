@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  email         String        @unique
+  id            String         @id @default(cuid())
+  email         String         @unique
   emailVerified DateTime?
   name          String?
   image         String?
   avatar        String?
   provider      String?
-  createdAt     DateTime      @default(now())
+  createdAt     DateTime       @default(now())
   greenhouses   Greenhouse[]
+  conversations Conversation[]
   chatMessages  ChatMessage[]
   accounts      Account[]
   sessions      Session[]
@@ -87,6 +88,7 @@ model Crop {
   notes             Note[]
   pestRecords       PestRecord[]
   treatments        Treatment[]
+  harvestRecords    HarvestRecord[]
 }
 
 enum CropStatus {
@@ -125,6 +127,15 @@ enum AlertType {
   RAIN_EXPECTED
 }
 
+model HarvestRecord {
+  id         String   @id @default(cuid())
+  kg         Float
+  harvestedAt DateTime @default(now())
+  notes      String?
+  cropId     String
+  crop       Crop     @relation(fields: [cropId], references: [id], onDelete: Cascade)
+}
+
 model PestRecord {
   id         String   @id @default(cuid())
   pestName   String
@@ -147,11 +158,24 @@ model Treatment {
   crop        Crop     @relation(fields: [cropId], references: [id], onDelete: Cascade)
 }
 
-model ChatMessage {
-  id        String   @id @default(cuid())
-  role      String
-  content   String
-  createdAt DateTime @default(now())
+model Conversation {
+  id        String        @id @default(cuid())
+  title     String        @default("Nueva conversación")
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id             String        @id @default(cuid())
+  role           String
+  content        String
+  imageUrl       String?
+  createdAt      DateTime      @default(now())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }

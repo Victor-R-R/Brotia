@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Leaf } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { db } from '@brotia/db'
+import { CropActions } from '@/components/crop/crop-actions'
 
 const statusConfig = {
   GROWING:   { label: 'En crecimiento', className: 'bg-primary/10 text-primary' },
@@ -53,7 +54,7 @@ const CultivosPage = async () => {
           {crops.map((crop: typeof crops[number]) => {
             const st = statusConfig[crop.status]
             return (
-              <div key={crop.id} className="bg-surface border border-border rounded-lg p-4">
+              <Link key={crop.id} href={`/cultivos/${crop.id}`} className="bg-surface border border-border rounded-lg p-4 block hover:border-primary/40 transition-colors">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <Leaf className="size-4 text-primary shrink-0" />
@@ -85,7 +86,9 @@ const CultivosPage = async () => {
                     })}
                   </p>
                 ) : null}
-              </div>
+
+                <CropActions id={crop.id} />
+              </Link>
             )
           })}
         </div>
