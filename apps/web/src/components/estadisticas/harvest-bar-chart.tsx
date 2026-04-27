@@ -12,41 +12,44 @@ type HarvestEntry = {
   harvestedAt: string
 }
 
-type Props = { entries: HarvestEntry[] }
+type Props = {
+  entries: HarvestEntry[]
+  /** When provided, the chart uses this year and hides the internal year selector */
+  year?: number
+}
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
-export const HarvestBarChart = ({ entries }: Props) => {
+export const HarvestBarChart = ({ entries, year }: Props) => {
   const years = useMemo(() => {
     const set = new Set(entries.map(e => new Date(e.harvestedAt).getFullYear()))
     return Array.from(set).sort((a, b) => b - a)
   }, [entries])
 
-  const [selectedYear, setSelectedYear] = useState(years[0] ?? new Date().getFullYear())
+  const [internalYear, setInternalYear] = useState<number | null>(null)
+  const effectiveYear = year ?? internalYear ?? years[0] ?? new Date().getFullYear()
 
   const data = useMemo(() => {
-    const filtered = entries.filter(
-      e => new Date(e.harvestedAt).getFullYear() === selectedYear,
-    )
     return MESES.map((mes, i) => ({
       mes,
-      kg: filtered
+      kg: entries
+        .filter(e => new Date(e.harvestedAt).getFullYear() === effectiveYear)
         .filter(e => new Date(e.harvestedAt).getMonth() === i)
         .reduce((sum, e) => sum + e.kg, 0),
     }))
-  }, [entries, selectedYear])
+  }, [entries, effectiveYear])
 
   return (
     <div className="bg-surface border border-border rounded-lg p-4">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="font-heading text-base font-semibold text-foreground">Producción mensual</h2>
-          <p className="text-xs text-subtle">kg cosechados por mes</p>
+          <p className="text-xs text-subtle">kg cosechados por mes · {effectiveYear}</p>
         </div>
-        {years.length > 1 && (
+        {year === undefined && years.length > 1 && (
           <select
-            value={selectedYear}
-            onChange={e => setSelectedYear(Number(e.target.value))}
+            value={effectiveYear}
+            onChange={e => setInternalYear(Number(e.target.value))}
             className="text-sm bg-surface-alt border border-border rounded-md px-2 py-1 text-foreground"
           >
             {years.map(y => <option key={y} value={y}>{y}</option>)}

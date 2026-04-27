@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  SUPERADMIN
+}
+
 model User {
   id            String         @id @default(cuid())
   email         String         @unique
@@ -19,12 +24,17 @@ model User {
   image         String?
   avatar        String?
   provider      String?
+  role          Role           @default(USER)
   createdAt     DateTime       @default(now())
   greenhouses   Greenhouse[]
   conversations Conversation[]
   chatMessages  ChatMessage[]
-  accounts      Account[]
-  sessions      Session[]
+  accounts          Account[]
+  sessions          Session[]
+  forumThreads      ForumThread[]
+  forumReplies      ForumReply[]
+  forumThreadLikes  ForumThreadLike[]
+  forumReplyLikes   ForumReplyLike[]
 }
 
 model Account {
@@ -182,4 +192,61 @@ model ChatMessage {
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   conversationId String?
   conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+enum ForumCategory {
+  PLAGAS
+  RIEGO
+  CULTIVOS
+  CLIMA
+  EQUIPAMIENTO
+  GENERAL
+}
+
+model ForumThread {
+  id        String            @id @default(cuid())
+  title     String
+  content   String
+  images    String[]
+  category  ForumCategory
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  replies   ForumReply[]
+  likes     ForumThreadLike[]
+}
+
+model ForumReply {
+  id        String           @id @default(cuid())
+  content   String
+  images    String[]
+  threadId  String
+  thread    ForumThread      @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  likes     ForumReplyLike[]
+}
+
+model ForumThreadLike {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  threadId  String
+  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, threadId])
+}
+
+model ForumReplyLike {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replyId   String
+  reply     ForumReply @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@unique([userId, replyId])
 }
