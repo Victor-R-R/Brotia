@@ -29,14 +29,15 @@ const TRANSPARENT_TILE = (() => {
   ihdr.writeUInt32BE(256, 4)
   ihdr[8] = 8; ihdr[9] = 6; ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0
   const raw = Buffer.alloc(256 * (1 + 256 * 4))
-  return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))])
+  const result = Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', deflateSync(raw)), chunk('IEND', Buffer.alloc(0))])
+  return new Uint8Array(result)
 })()
 
 // ─── In-memory tile cache ─────────────────────────────────────────────────────
 // Stores successfully fetched tiles so the throttle is bypassed on repeat
 // requests (e.g. pan back to a previously-viewed area). Bounded at 2 000 tiles
 // (~20–100 MB) — cleared wholesale when the limit is hit.
-type Entry = { buf: Buffer; ct: string }
+type Entry = { buf: ArrayBuffer; ct: string }
 const _cache = new Map<string, Entry>()
 
 // ─── Request throttle ─────────────────────────────────────────────────────────
@@ -98,7 +99,7 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
     }
 
     const body  = await res.arrayBuffer()
-    const entry = { buf: Buffer.from(body), ct }
+    const entry = { buf: body, ct }
 
     if (_cache.size >= 2000) _cache.clear()
     _cache.set(tileUrl, entry)
