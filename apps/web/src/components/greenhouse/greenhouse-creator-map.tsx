@@ -44,6 +44,13 @@ export const GreenhouseCreatorMap = memo(({
       })
       mapRef.current = map
 
+      // Suppress catastro tile decode errors — rate-limited tiles return a transparent
+      // PNG but MapLibre may still fire InvalidStateError for browser-cached stale tiles
+      map.on('error', (e) => {
+        if ((e.error as Error)?.message?.includes('could not be decoded')) return
+        console.error(e.error)
+      })
+
       map.on('load', () => {
         if (cancelled) return
 
