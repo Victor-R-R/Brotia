@@ -6,13 +6,14 @@ import {
 import { useRouter } from 'expo-router'
 import * as Google from 'expo-auth-session/providers/google'
 import * as WebBrowser from 'expo-web-browser'
+import { makeRedirectUri } from 'expo-auth-session'
 import { saveAuth } from '@/lib/auth-storage'
 import { palette } from '@/lib/theme'
 
 WebBrowser.maybeCompleteAuthSession()
 
-const API_BASE       = process.env.EXPO_PUBLIC_API_URL  ?? 'http://localhost:3000'
-const GOOGLE_CLIENT  = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? ''
+const API_BASE      = process.env.EXPO_PUBLIC_API_URL       ?? 'http://localhost:3000'
+const GOOGLE_CLIENT = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? ''
 
 const inputStyle = {
   backgroundColor: palette.background,
@@ -31,8 +32,11 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('')
   const [loading,  setLoading]  = useState(false)
 
+  const redirectUri = makeRedirectUri({ useProxy: true })
+
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId: GOOGLE_CLIENT,
+    redirectUri,
   })
 
   // Handle Google OAuth response
@@ -112,7 +116,7 @@ const LoginScreen = () => {
 
         {/* Google button */}
         <TouchableOpacity
-          onPress={() => promptAsync()}
+          onPress={() => promptAsync({ useProxy: true })}
           disabled={loading || !request}
           style={{
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
