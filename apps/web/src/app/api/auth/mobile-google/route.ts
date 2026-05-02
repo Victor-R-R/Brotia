@@ -29,7 +29,7 @@ export const POST = async (req: Request) => {
   }
 
   const secret = new TextEncoder().encode(process.env.AUTH_SECRET!)
-  const token  = await new SignJWT({ email: user.email })
+  const token  = await new SignJWT({ email: user.email, role: user.role })
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(user.id)
     .setIssuedAt()
