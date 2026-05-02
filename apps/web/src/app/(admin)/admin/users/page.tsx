@@ -30,7 +30,8 @@ const AdminUsersPage = async () => {
       </div>
 
       <div className="bg-surface border border-border rounded-lg overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[600px]">
           <thead>
             <tr className="border-b border-border bg-surface-alt">
               <th className="text-left px-4 py-3 text-xs font-medium text-muted uppercase tracking-wide">Usuario</th>
@@ -77,6 +78,7 @@ const AdminUsersPage = async () => {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )
