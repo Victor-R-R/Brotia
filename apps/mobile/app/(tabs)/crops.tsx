@@ -141,6 +141,12 @@ const CropsScreen = () => {
               <View className="flex-row gap-2 mt-2 pt-2 border-t border-border">
                 <TouchableOpacity
                   className="flex-1 py-1.5 rounded-lg border border-border items-center"
+                  onPress={() => router.push(`/crop/${crop.id}/edit`)}
+                >
+                  <Text className="text-xs font-medium text-muted">✏️ Editar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="flex-1 py-1.5 rounded-lg border border-border items-center"
                   onPress={() => handleDelete(crop.id, crop.name)}
                   disabled={deletingId === crop.id}
                 >
