@@ -167,6 +167,10 @@ export const api = {
       if (!res.ok) throw new Error('Failed to create crop')
       return res.json() as Promise<{ id: string }>
     },
+    delete: async (id: string): Promise<void> => {
+      const res = await apiFetch(`/api/crops/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete crop')
+    },
   },
 
   estadisticas: {

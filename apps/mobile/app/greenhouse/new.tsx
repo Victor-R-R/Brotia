@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native'
+import MapView, { Marker } from 'react-native-maps'
 import { useRouter, Stack } from 'expo-router'
 import { MapPin, CheckCircle } from 'lucide-react-native'
 import { api } from '@/lib/api'
@@ -13,6 +14,13 @@ const NewGreenhouseScreen = () => {
   const [loading,    setLoading]    = useState(false)
   const [catastroRc, setCatastroRc] = useState<string | null>(null)
   const [querying,   setQuerying]   = useState(false)
+
+  const previewCoords = useMemo(() => {
+    const lat = parseFloat(form.lat)
+    const lng = parseFloat(form.lng)
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) return null
+    return { lat, lng }
+  }, [form.lat, form.lng])
 
   const lookupCatastro = async (lat: string, lng: string) => {
     setQuerying(true)
@@ -143,6 +151,26 @@ const NewGreenhouseScreen = () => {
               />
             ))}
           </View>
+
+          {previewCoords ? (
+            <View className="mt-3 rounded-xl overflow-hidden border border-border" style={{ height: 160 }}>
+              <MapView
+                style={{ width: '100%', height: '100%' }}
+                initialRegion={{
+                  latitude:      previewCoords.lat,
+                  longitude:     previewCoords.lng,
+                  latitudeDelta:  0.01,
+                  longitudeDelta: 0.01,
+                }}
+                scrollEnabled={false}
+                zoomEnabled={false}
+              >
+                <Marker
+                  coordinate={{ latitude: previewCoords.lat, longitude: previewCoords.lng }}
+                />
+              </MapView>
+            </View>
+          ) : null}
         </View>
 
         <TouchableOpacity
