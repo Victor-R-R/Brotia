@@ -17,6 +17,7 @@ export const GET = async (req: Request) => {
         phone:    true,
         address:  true,
         provider: true,
+        role:     true,
       },
     })
     if (!user) return NextResponse.json({ error: 'Not found' }, { status: 404 })

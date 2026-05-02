@@ -41,6 +41,18 @@ export type UserProfile = {
   phone:    string | null
   address:  string | null
   provider: string | null
+  role:     string
+}
+
+export type AdminUser = {
+  id:        string
+  email:     string
+  name:      string | null
+  lastName:  string | null
+  role:      string
+  provider:  string | null
+  createdAt: string
+  _count:    { greenhouses: number }
 }
 
 export type ForumUser = {
@@ -249,6 +261,24 @@ export const api = {
     deleteReply: async (id: string): Promise<void> => {
       const res = await apiFetch(`/api/community/replies/${id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error('Failed to delete reply')
+    },
+  },
+
+  admin: {
+    users: {
+      list: async (): Promise<AdminUser[]> => {
+        const res = await apiFetch('/api/admin/users')
+        if (!res.ok) throw new Error('Failed to fetch users')
+        return res.json() as Promise<AdminUser[]>
+      },
+      setRole: async (id: string, role: 'USER' | 'SUPERADMIN'): Promise<void> => {
+        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) })
+        if (!res.ok) throw new Error('Failed to update role')
+      },
+      delete: async (id: string): Promise<void> => {
+        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' })
+        if (!res.ok) throw new Error('Failed to delete user')
+      },
     },
   },
 }
