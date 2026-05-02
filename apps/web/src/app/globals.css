@@ -53,3 +53,13 @@
     cursor: pointer;
   }
 }
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  /* bottom nav height (56px ≈ 3.5rem) + safe area */
+  .pb-nav-safe {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  }
+}

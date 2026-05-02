@@ -24,7 +24,7 @@ export const BottomNav = ({ isAdmin }: BottomNavProps) => {
     : baseNavItems
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 bg-surface-alt border-t border-border flex md:hidden">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-surface-alt border-t border-border flex md:hidden pb-safe">
       {navItems.map(({ href, icon, label }) => {
         const isActive = pathname === href
         return (

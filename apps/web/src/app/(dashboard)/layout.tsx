@@ -22,7 +22,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
       )}
       <div className="flex flex-1">
         <Sidebar isAdmin={isAdmin} />
-        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6 overflow-auto bg-background">
+        <main className="flex-1 p-4 md:p-6 pb-nav-safe md:pb-6 overflow-auto bg-background">
           {children}
         </main>
         <BottomNav isAdmin={isAdmin} />
