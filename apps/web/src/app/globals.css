@@ -2,22 +2,22 @@
 @plugin "@tailwindcss/typography";
 
 @theme inline {
-  --color-background:     #FAFCF7;
+  --color-background:     #F2FAF4;
   --color-surface:        #FFFFFF;
-  --color-surface-alt:    #F2F7EE;
-  --color-surface-raised: #E8F2DF;
-  --color-primary:        #2D5A1B;
-  --color-primary-hover:  #3D7525;
-  --color-primary-light:  #5A9E3E;
-  --color-pea:            #8DB84A;
-  --color-olive:          #6B7C3D;
-  --color-sage:           #A8C185;
-  --color-mint:           #D4E6C3;
-  --color-foreground:     #1C2E0F;
-  --color-muted:          #4B6838;
-  --color-subtle:         #7A9B6A;
-  --color-border:         #C8DEB5;
-  --color-border-subtle:  #E2EFDA;
+  --color-surface-alt:    #E6F5EA;
+  --color-surface-raised: #D4EED9;
+  --color-primary:        #1A7A30;
+  --color-primary-hover:  #22A040;
+  --color-primary-light:  #4DBB5A;
+  --color-pea:            #4DBB5A;
+  --color-olive:          #3D6E47;
+  --color-sage:           #7ACC82;
+  --color-mint:           #B8E8BF;
+  --color-foreground:     #0B2610;
+  --color-muted:          #1F5C2E;
+  --color-subtle:         #4E8A58;
+  --color-border:         #9ED4A6;
+  --color-border-subtle:  #C4E8CA;
   --color-frost:          #BAE6FD;
   --color-frost-text:     #0369A1;
   --color-hail:           #C7D2FE;
@@ -48,5 +48,8 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-heading);
+  }
+  button:not(:disabled) {
+    cursor: pointer;
   }
 }

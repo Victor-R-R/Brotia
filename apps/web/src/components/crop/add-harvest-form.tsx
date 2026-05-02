@@ -50,7 +50,7 @@ export const AddHarvestForm = ({ cropId }: { cropId: string }) => {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors"
+        className="flex items-center gap-1.5 text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
       >
         <Plus className="size-3.5" />
         Registrar recogida
@@ -99,14 +99,14 @@ export const AddHarvestForm = ({ cropId }: { cropId: string }) => {
         <button
           type="submit"
           disabled={loading}
-          className="px-3 py-1.5 text-xs font-medium bg-primary text-white rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 text-xs font-medium bg-primary text-white rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
         >
           {loading ? 'Guardando…' : 'Guardar'}
         </button>
         <button
           type="button"
           onClick={() => { setOpen(false); setError(null) }}
-          className="px-3 py-1.5 text-xs font-medium border border-border text-muted rounded-md hover:text-foreground transition-colors"
+          className="px-3 py-1.5 text-xs font-medium border border-border text-muted rounded-md hover:text-foreground transition-colors cursor-pointer"
         >
           Cancelar
         </button>

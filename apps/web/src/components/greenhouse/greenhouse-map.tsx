@@ -31,7 +31,7 @@ export const GreenhouseMap = memo(({ markers, onSelect }: GreenhouseMapProps) =>
 
       map = new maplibre.Map({
         container: containerRef.current!,
-        style:     'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+        style:     'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
         center:    markers.length > 0 ? [markers[0].lng, markers[0].lat] : [-3.7038, 40.4168],
         zoom:      7,
       })

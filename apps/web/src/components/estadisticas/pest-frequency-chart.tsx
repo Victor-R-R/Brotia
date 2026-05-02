@@ -15,7 +15,7 @@ type PestEntry = {
 type Props = { entries: PestEntry[] }
 
 const SEVERITY_COLOR: Record<string, string> = {
-  low:    '#8DB84A',
+  low:    '#4DBB5A',
   medium: '#CA8A04',
   high:   '#DC2626',
 }
@@ -55,10 +55,10 @@ export const PestFrequencyChart = ({ entries }: Props) => {
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} layout="vertical" margin={{ top: 4, right: 16, left: 8, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#C8DEB5" horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#9ED4A6" horizontal={false} />
           <XAxis
             type="number"
-            tick={{ fontSize: 11, fill: '#7A9B6A' }}
+            tick={{ fontSize: 11, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
             allowDecimals={false}
@@ -66,7 +66,7 @@ export const PestFrequencyChart = ({ entries }: Props) => {
           <YAxis
             type="category"
             dataKey="plaga"
-            tick={{ fontSize: 11, fill: '#7A9B6A' }}
+            tick={{ fontSize: 11, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
             width={90}
@@ -74,7 +74,7 @@ export const PestFrequencyChart = ({ entries }: Props) => {
           <Tooltip
             contentStyle={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid #C8DEB5',
+              border: '1px solid #9ED4A6',
               borderRadius: '8px',
               fontSize: '12px',
             }}
@@ -82,14 +82,14 @@ export const PestFrequencyChart = ({ entries }: Props) => {
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]}>
             {data.map((entry, i) => (
-              <Cell key={i} fill={SEVERITY_COLOR[entry.topSeverity] ?? '#8DB84A'} />
+              <Cell key={i} fill={SEVERITY_COLOR[entry.topSeverity] ?? '#4DBB5A'} />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
       <p className="text-xs text-subtle mt-2">
         Color indica la severidad máxima registrada:
-        <span className="ml-1 text-[#8DB84A]">● baja</span>
+        <span className="ml-1 text-[#4DBB5A]">● baja</span>
         <span className="ml-1 text-[#CA8A04]">● media</span>
         <span className="ml-1 text-[#DC2626]">● alta</span>
       </p>

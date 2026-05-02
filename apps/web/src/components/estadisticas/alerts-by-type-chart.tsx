@@ -22,6 +22,7 @@ const ALERT_CONFIG: Record<string, { label: string; color: string }> = {
   RAIN_EXPECTED:  { label: 'Lluvia',         color: '#1D4ED8' },
 }
 
+
 export const AlertsByTypeChart = ({ entries }: Props) => {
   const data = useMemo(() => {
     const counts: Record<string, number> = {}
@@ -32,7 +33,7 @@ export const AlertsByTypeChart = ({ entries }: Props) => {
       .map(([type, count]) => ({
         tipo: ALERT_CONFIG[type]?.label ?? type,
         count,
-        color: ALERT_CONFIG[type]?.color ?? '#2D5A1B',
+        color: ALERT_CONFIG[type]?.color ?? '#1A7A30',
       }))
       .sort((a, b) => b.count - a.count)
   }, [entries])
@@ -53,15 +54,15 @@ export const AlertsByTypeChart = ({ entries }: Props) => {
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#C8DEB5" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#9ED4A6" />
           <XAxis
             dataKey="tipo"
-            tick={{ fontSize: 10, fill: '#7A9B6A' }}
+            tick={{ fontSize: 10, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: '#7A9B6A' }}
+            tick={{ fontSize: 11, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
             allowDecimals={false}
@@ -69,7 +70,7 @@ export const AlertsByTypeChart = ({ entries }: Props) => {
           <Tooltip
             contentStyle={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid #C8DEB5',
+              border: '1px solid #9ED4A6',
               borderRadius: '8px',
               fontSize: '12px',
             }}

@@ -50,8 +50,11 @@ export const authConfig: NextAuthConfig = {
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id
+      }
+      const userId = (user?.id ?? token.sub) as string | undefined
+      if (userId) {
         const dbUser = await db.user.findUnique({
-          where: { id: user.id },
+          where: { id: userId },
           select: { role: true },
         })
         ;(token as Record<string, unknown>).role = dbUser?.role ?? 'USER'

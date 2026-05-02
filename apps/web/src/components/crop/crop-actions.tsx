@@ -23,7 +23,7 @@ export const CropActions = ({ id }: { id: string }) => {
     <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border-subtle">
       <button
         onClick={() => router.push(`/cultivos/${id}/edit`)}
-        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border text-muted hover:text-foreground hover:border-primary/50 transition-colors"
+        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border text-muted hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer"
       >
         <Pencil className="size-3" />
         Editar
@@ -31,7 +31,7 @@ export const CropActions = ({ id }: { id: string }) => {
       <button
         onClick={handleDelete}
         disabled={deleting}
-        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border text-muted hover:text-danger-text hover:border-danger transition-colors disabled:opacity-50"
+        className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-md border border-border text-muted hover:text-danger-text hover:border-danger transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
       >
         <Trash2 className="size-3" />
         {deleting ? 'Eliminando…' : 'Eliminar'}
