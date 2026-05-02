@@ -153,22 +153,42 @@ const NewGreenhouseScreen = () => {
           </View>
 
           {previewCoords ? (
-            <View className="mt-3 rounded-xl overflow-hidden border border-border" style={{ height: 160 }}>
-              <MapView
-                style={{ width: '100%', height: '100%' }}
-                initialRegion={{
-                  latitude:      previewCoords.lat,
-                  longitude:     previewCoords.lng,
-                  latitudeDelta:  0.01,
-                  longitudeDelta: 0.01,
-                }}
-                scrollEnabled={false}
-                zoomEnabled={false}
-              >
-                <Marker
-                  coordinate={{ latitude: previewCoords.lat, longitude: previewCoords.lng }}
-                />
-              </MapView>
+            <View className="mt-3">
+              <View className="rounded-xl overflow-hidden border border-border" style={{ height: 220 }}>
+                <MapView
+                  style={{ width: '100%', height: '100%' }}
+                  initialRegion={{
+                    latitude:      previewCoords.lat,
+                    longitude:     previewCoords.lng,
+                    latitudeDelta:  0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                  onPress={e => {
+                    const { latitude, longitude } = e.nativeEvent.coordinate
+                    setForm(prev => ({
+                      ...prev,
+                      lat: latitude.toFixed(6),
+                      lng: longitude.toFixed(6),
+                    }))
+                  }}
+                >
+                  <Marker
+                    coordinate={{ latitude: previewCoords.lat, longitude: previewCoords.lng }}
+                    draggable
+                    onDragEnd={e => {
+                      const { latitude, longitude } = e.nativeEvent.coordinate
+                      setForm(prev => ({
+                        ...prev,
+                        lat: latitude.toFixed(6),
+                        lng: longitude.toFixed(6),
+                      }))
+                    }}
+                  />
+                </MapView>
+              </View>
+              <Text className="text-xs text-subtle mt-1.5 text-center">
+                Toca el mapa o arrastra el pin para ajustar la ubicación exacta
+              </Text>
             </View>
           ) : null}
         </View>
