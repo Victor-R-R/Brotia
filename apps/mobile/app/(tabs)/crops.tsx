@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native'
 import { useRouter } from 'expo-router'
+import { useFocusEffect } from '@react-navigation/native'
 import { Plus } from 'lucide-react-native'
 import { api } from '@/lib/api'
 import type { CropListItem } from '@/lib/api'
@@ -34,7 +35,7 @@ const CropsScreen = () => {
     }
   }, [])
 
-  useEffect(() => { fetchCrops() }, [fetchCrops])
+  useFocusEffect(useCallback(() => { fetchCrops() }, [fetchCrops]))
 
   const handleDelete = (id: string, name: string) => {
     Alert.alert(
