@@ -9,13 +9,13 @@ import { api, type ThreadSummary } from '@/lib/api'
 import { palette } from '@/lib/theme'
 
 const CATEGORIES = [
-  { key: '',             label: 'Todos'           },
-  { key: 'PLAGAS',       label: '🐛 Plagas'       },
-  { key: 'RIEGO',        label: '💧 Riego'        },
-  { key: 'CULTIVOS',     label: '🌱 Cultivos'     },
-  { key: 'CLIMA',        label: '🌤️ Clima'        },
-  { key: 'EQUIPAMIENTO', label: '🔧 Equipamiento' },
-  { key: 'GENERAL',      label: '💬 General'      },
+  { key: '',             label: 'Todos',                  emoji: '' },
+  { key: 'PLAGAS',       label: 'Plagas y enfermedades',  emoji: '🐛' },
+  { key: 'RIEGO',        label: 'Riego y fertilización',  emoji: '💧' },
+  { key: 'CULTIVOS',     label: 'Cultivos',               emoji: '🌱' },
+  { key: 'CLIMA',        label: 'Clima y temporadas',     emoji: '🌤️' },
+  { key: 'EQUIPAMIENTO', label: 'Equipamiento',           emoji: '🔧' },
+  { key: 'GENERAL',      label: 'General',                emoji: '💬' },
 ]
 
 const formatName = (name: string | null, lastName: string | null) =>
@@ -47,38 +47,43 @@ const CommunityScreen = () => {
   }, [category, load])
 
   return (
-    <View className="flex-1 bg-white">
+    <View style={{ flex: 1, backgroundColor: palette.background }}>
       {/* Category chips */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="border-b border-gray-100"
+        style={{ borderBottomWidth: 1, borderBottomColor: palette.border, flexGrow: 0 }}
         contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 10, gap: 8 }}
       >
-        {CATEGORIES.map(cat => (
-          <TouchableOpacity
-            key={cat.key}
-            onPress={() => setCategory(cat.key)}
-            style={{
-              paddingHorizontal: 12, paddingVertical: 6,
-              borderRadius: 20,
-              backgroundColor: category === cat.key ? palette.primary : 'transparent',
-              borderWidth: 1,
-              borderColor: category === cat.key ? palette.primary : palette.border,
-            }}
-          >
-            <Text style={{
-              fontSize: 12,
-              color: category === cat.key ? '#fff' : palette.muted,
-            }}>
-              {cat.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {CATEGORIES.map(cat => {
+          const isActive = category === cat.key
+          return (
+            <TouchableOpacity
+              key={cat.key}
+              onPress={() => setCategory(cat.key)}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 999,
+                backgroundColor: isActive ? palette.primary : palette.surface,
+                borderWidth: 1,
+                borderColor: isActive ? palette.primary : palette.border,
+              }}
+            >
+              <Text style={{
+                fontSize: 12,
+                fontWeight: '500',
+                color: isActive ? '#fff' : palette.subtle,
+              }}>
+                {cat.emoji ? `${cat.emoji} ${cat.label}` : cat.label}
+              </Text>
+            </TouchableOpacity>
+          )
+        })}
       </ScrollView>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator color={palette.primary} />
         </View>
       ) : (
@@ -88,7 +93,7 @@ const CommunityScreen = () => {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           contentContainerStyle={{ padding: 12, gap: 10 }}
           ListEmptyComponent={
-            <Text className="text-center text-gray-400 text-sm mt-12">
+            <Text style={{ textAlign: 'center', color: palette.subtle, fontSize: 14, marginTop: 48 }}>
               No hay publicaciones aún. ¡Sé el primero!
             </Text>
           }
@@ -96,7 +101,7 @@ const CommunityScreen = () => {
             <TouchableOpacity
               onPress={() => router.push(`/community/${thread.id}`)}
               style={{
-                backgroundColor: '#fff',
+                backgroundColor: palette.surface,
                 borderRadius: 12,
                 padding: 14,
                 borderWidth: 1,
@@ -120,20 +125,24 @@ const CommunityScreen = () => {
                   <Text style={{ fontSize: 14, fontWeight: '600', color: palette.foreground, marginBottom: 2 }}>
                     {thread.title}
                   </Text>
-                  <Text style={{ fontSize: 12, color: palette.muted }} numberOfLines={2}>
+                  <Text style={{ fontSize: 12, color: palette.subtle }} numberOfLines={2}>
                     {thread.contentPreview}
                   </Text>
-                  <Text style={{ fontSize: 11, color: palette.muted, marginTop: 2 }}>
+                  <Text style={{ fontSize: 11, color: palette.subtle, marginTop: 2 }}>
                     {formatName(thread.user.name, thread.user.lastName)}
                   </Text>
                   <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <MessageSquare size={13} color={palette.muted} />
-                      <Text style={{ fontSize: 12, color: palette.muted }}>{thread._count.replies}</Text>
+                      <MessageSquare size={13} color={palette.subtle} />
+                      <Text style={{ fontSize: 12, color: palette.subtle }}>{thread._count.replies}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <Heart size={13} color={thread.hasLiked ? '#ef4444' : palette.muted} fill={thread.hasLiked ? '#ef4444' : 'transparent'} />
-                      <Text style={{ fontSize: 12, color: palette.muted }}>{thread._count.likes}</Text>
+                      <Heart
+                        size={13}
+                        color={thread.hasLiked ? '#ef4444' : palette.subtle}
+                        fill={thread.hasLiked ? '#ef4444' : 'transparent'}
+                      />
+                      <Text style={{ fontSize: 12, color: palette.subtle }}>{thread._count.likes}</Text>
                     </View>
                   </View>
                 </View>

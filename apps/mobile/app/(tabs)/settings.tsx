@@ -8,13 +8,17 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native'
+import { useRouter } from 'expo-router'
 import { api } from '../../lib/api'
 import type { UserProfile } from '../../lib/api'
+import { palette } from '@/lib/theme'
+import { clearAuth } from '@/lib/auth-storage'
 
 const inputClass =
-  'bg-white border border-border rounded-lg px-3 py-3 text-sm text-foreground'
+  'bg-surface border border-border rounded-lg px-3 py-3 text-sm text-foreground'
 
 const SettingsScreen = () => {
+  const router = useRouter()
   const [user,    setUser]    = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -83,7 +87,7 @@ const SettingsScreen = () => {
   if (loading) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator color="#2D5A1B" />
+        <ActivityIndicator color={palette.primary} />
       </View>
     )
   }
@@ -107,7 +111,7 @@ const SettingsScreen = () => {
               value={name}
               onChangeText={setName}
               placeholder="Tu nombre"
-              placeholderTextColor="#7A9B6A"
+              placeholderTextColor={palette.subtle}
               className={inputClass}
             />
           </View>
@@ -117,7 +121,7 @@ const SettingsScreen = () => {
               value={lastName}
               onChangeText={setLastName}
               placeholder="Apellido"
-              placeholderTextColor="#7A9B6A"
+              placeholderTextColor={palette.subtle}
               className={inputClass}
             />
           </View>
@@ -129,7 +133,7 @@ const SettingsScreen = () => {
             value={phone}
             onChangeText={setPhone}
             placeholder="+34 600 000 000"
-            placeholderTextColor="#7A9B6A"
+            placeholderTextColor={palette.subtle}
             keyboardType="phone-pad"
             className={inputClass}
           />
@@ -141,7 +145,7 @@ const SettingsScreen = () => {
             value={address}
             onChangeText={setAddress}
             placeholder="Tu dirección"
-            placeholderTextColor="#7A9B6A"
+            placeholderTextColor={palette.subtle}
             className={inputClass}
           />
         </View>
@@ -158,6 +162,25 @@ const SettingsScreen = () => {
           }
         </TouchableOpacity>
       </View>
+
+      {/* Logout */}
+      <TouchableOpacity
+        onPress={() => {
+          Alert.alert('Cerrar sesión', '¿Seguro que quieres salir?', [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Cerrar sesión',
+              onPress: async () => {
+                await clearAuth()
+                router.replace('/login')
+              },
+            },
+          ])
+        }}
+        className="bg-surface border border-border rounded-xl py-3 items-center mb-4"
+      >
+        <Text className="text-sm font-medium text-foreground">Cerrar sesión</Text>
+      </TouchableOpacity>
 
       {/* Danger zone */}
       <View className="bg-surface border border-red-200 rounded-xl p-4">
