@@ -62,13 +62,21 @@
   .pb-nav-safe {
     padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
   }
-  /* chat page full-height: viewport minus bottom nav on mobile, full dvh on desktop */
-  .h-chat {
-    height: calc(100dvh - 3.5rem - env(safe-area-inset-bottom, 0px));
+  /* chat page: fixed to viewport on mobile so it's pixel-perfect above the bottom nav,
+     regardless of parent padding/overflow quirks. Reverts to static flow on desktop. */
+  .chat-container {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+    z-index: 10;
   }
   @media (min-width: 768px) {
-    .h-chat {
+    .chat-container {
+      position: static;
       height: 100dvh;
+      margin: -1.5rem; /* cancel main's md:p-6 */
+      z-index: auto;
     }
   }
 }
