@@ -173,8 +173,7 @@ export const ChatInterface = () => {
   const isLoading = status === 'streaming' || status === 'submitted'
 
   return (
-    // Negative margins cancel the dashboard layout's padding, h-chat fills space above bottom nav
-    <div className="-m-4 md:-m-6 flex h-chat overflow-hidden bg-surface">
+    <div className="chat-container flex overflow-hidden bg-surface">
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
