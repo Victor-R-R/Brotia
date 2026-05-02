@@ -1,19 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
   KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
 } from 'react-native'
 import { useRouter } from 'expo-router'
-import * as Google from 'expo-auth-session/providers/google'
 import * as WebBrowser from 'expo-web-browser'
-import { makeRedirectUri } from 'expo-auth-session'
+import * as Linking from 'expo-linking'
 import { saveAuth } from '@/lib/auth-storage'
 import { palette } from '@/lib/theme'
 
-WebBrowser.maybeCompleteAuthSession()
-
-const API_BASE      = process.env.EXPO_PUBLIC_API_URL       ?? 'http://localhost:3000'
-const GOOGLE_CLIENT = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ?? ''
+const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
 const inputStyle = {
   backgroundColor: palette.background,
@@ -32,42 +28,33 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('')
   const [loading,  setLoading]  = useState(false)
 
-  const redirectUri = makeRedirectUri({ useProxy: true })
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: GOOGLE_CLIENT,
-    redirectUri,
-  })
-
-  // Handle Google OAuth response
-  useEffect(() => {
-    if (response?.type !== 'success') return
-    const accessToken = response.authentication?.accessToken
-    if (!accessToken) return
-    handleGoogleToken(accessToken)
-  }, [response])
-
-  const handleGoogleToken = async (accessToken: string) => {
+  const handleGoogleLogin = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/api/auth/mobile-google`, {
+      // Build the redirect URI for this environment (Expo Go or standalone)
+      const redirectUri = Linking.createURL('auth-callback')
+      const authUrl     = `${API_BASE}/mobile-auth?redirect_uri=${encodeURIComponent(redirectUri)}`
+
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri)
+      if (result.type !== 'success') return
+
+      // Extract the one-time code from the deep-link URL
+      const parsed = Linking.parse(result.url)
+      const code   = parsed.queryParams?.code as string | undefined
+      if (!code) throw new Error('no_code')
+
+      // Exchange the code for a JWT
+      const res = await fetch(`${API_BASE}/api/auth/mobile-code?action=redeem`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ accessToken }),
+        body:    JSON.stringify({ code }),
       })
-      if (res.status === 404) {
-        Alert.alert(
-          'Cuenta no encontrada',
-          'No hay cuenta asociada a este email de Google. Regístrate en brotia.app primero.',
-        )
-        return
-      }
-      if (!res.ok) throw new Error()
+      if (!res.ok) throw new Error('redeem_failed')
       const { token, user } = await res.json()
       await saveAuth(token, user)
       router.replace('/(tabs)/')
     } catch {
-      Alert.alert('Error', 'No se pudo verificar tu cuenta de Google.')
+      Alert.alert('Error', 'No se pudo conectar con Google. Inténtalo de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -116,17 +103,16 @@ const LoginScreen = () => {
 
         {/* Google button */}
         <TouchableOpacity
-          onPress={() => promptAsync({ useProxy: true })}
-          disabled={loading || !request}
+          onPress={handleGoogleLogin}
+          disabled={loading}
           style={{
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
             backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.border,
             borderRadius: 10, paddingVertical: 14, marginBottom: 20,
-            opacity: loading || !request ? 0.6 : 1,
+            opacity: loading ? 0.6 : 1,
           }}
         >
-          {/* Google "G" logo */}
-          <Text style={{ fontSize: 18, lineHeight: 22 }}>G</Text>
+          <Text style={{ fontSize: 16 }}>G</Text>
           <Text style={{ fontSize: 15, fontWeight: '600', color: palette.foreground }}>
             Continuar con Google
           </Text>
