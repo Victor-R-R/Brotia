@@ -13,7 +13,8 @@ import type { CurrentWeather } from '@/lib/weather'
 
 const GreenhousesScreen = () => {
   const router = useRouter()
-  const mapRef = useRef<MapView>(null)
+  const mapRef          = useRef<MapView>(null)
+  const greenhousesRef  = useRef<GreenhouseListItem[]>([])
   const [greenhouses, setGreenhouses] = useState<GreenhouseListItem[]>([])
   const [weatherMap,  setWeatherMap]  = useState<Record<string, CurrentWeather | null>>({})
   const [refreshing,  setRefreshing]  = useState(false)
@@ -24,9 +25,9 @@ const GreenhousesScreen = () => {
     setError(null)
     try {
       const data = await api.greenhouses.list()
+      greenhousesRef.current = data
       setGreenhouses(data)
 
-      // Fetch weather for all greenhouses in parallel from Open-Meteo (no auth needed)
       const results = await Promise.allSettled(
         data.map(gh => fetchWeather(gh.lat, gh.lng))
       )
@@ -36,7 +37,6 @@ const GreenhousesScreen = () => {
         map[gh.id] = r.status === 'fulfilled' ? r.value : null
       })
       setWeatherMap(map)
-
     } catch {
       setError('No se pudieron cargar los invernaderos. Desliza para reintentar.')
     } finally {
@@ -47,16 +47,23 @@ const GreenhousesScreen = () => {
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
-  const firstGh = greenhouses[0]
-  const initialRegion = firstGh ? {
-    latitude:      firstGh.lat,
-    longitude:     firstGh.lng,
-    latitudeDelta:  0.05,
-    longitudeDelta: 0.05,
-  } : {
-    latitude:       36.7, longitude: -3.4,
-    latitudeDelta:  1,    longitudeDelta: 1,
-  }
+  const fitMap = useCallback(() => {
+    const data = greenhousesRef.current
+    if (!mapRef.current || data.length === 0) return
+    if (data.length === 1) {
+      mapRef.current.animateToRegion({
+        latitude:      data[0].lat,
+        longitude:     data[0].lng,
+        latitudeDelta:  0.01,
+        longitudeDelta: 0.01,
+      }, 300)
+    } else {
+      mapRef.current.fitToCoordinates(
+        data.map(gh => ({ latitude: gh.lat, longitude: gh.lng })),
+        { edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, animated: false }
+      )
+    }
+  }, [])
 
   return (
     <View style={{ flex: 1, backgroundColor: palette.background }}>
@@ -87,24 +94,17 @@ const GreenhousesScreen = () => {
         {!loading && greenhouses.length > 0 ? (
           <View style={{ height: 200, marginHorizontal: 16, marginBottom: 16, borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: palette.border }}>
             <MapView
+              key={greenhouses.map(g => g.id).join(',')}
               ref={mapRef}
               style={{ width: '100%', height: '100%' }}
-              initialRegion={initialRegion}
-              showsUserLocation={false}
-              onMapReady={() => {
-                if (greenhouses.length > 1) {
-                  mapRef.current?.fitToCoordinates(
-                    greenhouses.map(gh => ({ latitude: gh.lat, longitude: gh.lng })),
-                    { edgePadding: { top: 40, right: 40, bottom: 40, left: 40 }, animated: false }
-                  )
-                }
-              }}
+              onMapReady={fitMap}
             >
               {greenhouses.map(gh => (
                 <Marker
                   key={gh.id}
                   coordinate={{ latitude: gh.lat, longitude: gh.lng }}
                   title={gh.name}
+                  pinColor={palette.primary}
                   onPress={() => router.push(`/greenhouse/${gh.id}`)}
                 />
               ))}
