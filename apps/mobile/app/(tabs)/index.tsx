@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Dimensions } from 'react-native'
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import { useRouter } from 'expo-router'
 import { Plus } from 'lucide-react-native'
@@ -10,7 +10,6 @@ import { palette } from '@/lib/theme'
 import type { GreenhouseListItem } from '@/lib/api'
 import type { CurrentWeather } from '@/lib/weather'
 
-const { width } = Dimensions.get('window')
 
 const GreenhousesScreen = () => {
   const router = useRouter()
@@ -38,13 +37,6 @@ const GreenhousesScreen = () => {
       })
       setWeatherMap(map)
 
-      // Fit map to show all markers
-      if (data.length > 0 && mapRef.current) {
-        mapRef.current.fitToCoordinates(
-          data.map(gh => ({ latitude: gh.lat, longitude: gh.lng })),
-          { edgePadding: { top: 40, right: 40, bottom: 40, left: 40 }, animated: true }
-        )
-      }
     } catch {
       setError('No se pudieron cargar los invernaderos. Desliza para reintentar.')
     } finally {
@@ -99,6 +91,14 @@ const GreenhousesScreen = () => {
               style={{ width: '100%', height: '100%' }}
               initialRegion={initialRegion}
               showsUserLocation={false}
+              onMapReady={() => {
+                if (greenhouses.length > 1) {
+                  mapRef.current?.fitToCoordinates(
+                    greenhouses.map(gh => ({ latitude: gh.lat, longitude: gh.lng })),
+                    { edgePadding: { top: 40, right: 40, bottom: 40, left: 40 }, animated: false }
+                  )
+                }
+              }}
             >
               {greenhouses.map(gh => (
                 <Marker
