@@ -2,11 +2,16 @@
 
 import { useEffect, useState } from 'react'
 
-type Platform = 'android' | 'ios' | 'other'
+type Platform = 'ios-safari' | 'ios-other' | 'android' | 'other'
 
 const detectPlatform = (): Platform => {
   const ua = navigator.userAgent
-  if (/iphone|ipad|ipod/i.test(ua)) return 'ios'
+  const isIos = /iphone|ipad|ipod/i.test(ua)
+  if (isIos) {
+    // CriOS = Chrome iOS, FxiOS = Firefox iOS — ninguno soporta PWA install
+    const isSafari = !/CriOS|FxiOS|OPiOS|mercury/i.test(ua)
+    return isSafari ? 'ios-safari' : 'ios-other'
+  }
   if (/android/i.test(ua)) return 'android'
   return 'other'
 }
@@ -28,7 +33,7 @@ export const InstallPrompt = () => {
     const p = detectPlatform()
     setPlatform(p)
 
-    if (p === 'ios') {
+    if (p === 'ios-safari' || p === 'ios-other') {
       setVisible(true)
       return
     }
@@ -64,12 +69,21 @@ export const InstallPrompt = () => {
           <img src="/icons/icon-192.png" alt="Brotia" className="w-12 h-12 rounded-xl flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="font-heading font-semibold text-foreground text-sm">Instalar Brotia</p>
-            {platform === 'ios' ? (
+
+            {platform === 'ios-safari' && (
+              <ol className="text-muted text-xs mt-1 space-y-0.5 list-none">
+                <li>1. Pulsa <span className="font-semibold">Compartir</span> 📤 (abajo en Safari)</li>
+                <li>2. Desplázate y pulsa <span className="font-semibold">&ldquo;En pantalla de inicio&rdquo;</span></li>
+              </ol>
+            )}
+
+            {platform === 'ios-other' && (
               <p className="text-muted text-xs mt-0.5">
-                Pulsa <span className="font-semibold">⬜</span> y luego{' '}
-                <span className="font-semibold">&ldquo;En pantalla de inicio&rdquo;</span>
+                Abre esta página en <span className="font-semibold">Safari</span> para instalarla en tu iPhone
               </p>
-            ) : (
+            )}
+
+            {(platform === 'android' || platform === 'other') && (
               <p className="text-muted text-xs mt-0.5">
                 Accede sin navegador, como una app nativa
               </p>
@@ -84,7 +98,7 @@ export const InstallPrompt = () => {
           </button>
         </div>
 
-        {platform !== 'ios' && deferredPrompt && (
+        {platform !== 'ios-safari' && platform !== 'ios-other' && deferredPrompt && (
           <button
             onClick={handleInstall}
             className="w-full bg-primary text-white font-semibold text-sm py-2.5 rounded-lg hover:bg-primary-hover transition-colors"
