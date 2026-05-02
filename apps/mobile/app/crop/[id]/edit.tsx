@@ -126,7 +126,7 @@ const CropEditScreen = () => {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Editar cultivo', headerShown: true }} />
+      <Stack.Screen options={{ title: 'Editar cultivo', headerShown: true, headerBackTitle: '' }} />
       <ScrollView className="flex-1 bg-background px-4 pt-4" keyboardShouldPersistTaps="handled">
 
         {/* Crop picker trigger */}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from 'react-native'
-import MapView, { Marker } from 'react-native-maps'
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, StyleSheet } from 'react-native'
+import MapView, { Marker, UrlTile } from 'react-native-maps'
 import { useRouter } from 'expo-router'
 import { Plus } from 'lucide-react-native'
 import { GreenhouseCard } from '@/components/GreenhouseCard'
@@ -50,19 +50,17 @@ const GreenhousesScreen = () => {
   const fitMap = useCallback(() => {
     const data = greenhousesRef.current
     if (!mapRef.current || data.length === 0) return
-    if (data.length === 1) {
-      mapRef.current.animateToRegion({
-        latitude:      data[0].lat,
-        longitude:     data[0].lng,
-        latitudeDelta:  0.01,
-        longitudeDelta: 0.01,
-      }, 300)
-    } else {
-      mapRef.current.fitToCoordinates(
-        data.map(gh => ({ latitude: gh.lat, longitude: gh.lng })),
-        { edgePadding: { top: 50, right: 50, bottom: 50, left: 50 }, animated: false }
-      )
-    }
+    const DELTA = 0.004
+    const coords = data.length === 1
+      ? [
+          { latitude: data[0].lat - DELTA, longitude: data[0].lng - DELTA },
+          { latitude: data[0].lat + DELTA, longitude: data[0].lng + DELTA },
+        ]
+      : data.map(gh => ({ latitude: gh.lat, longitude: gh.lng }))
+    mapRef.current.fitToCoordinates(coords, {
+      edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
+      animated: false,
+    })
   }, [])
 
   return (
@@ -96,17 +94,26 @@ const GreenhousesScreen = () => {
             <MapView
               key={greenhouses.map(g => g.id).join(',')}
               ref={mapRef}
+              mapType="none"
               style={{ width: '100%', height: '100%' }}
               onMapReady={fitMap}
             >
+              <UrlTile
+                urlTemplate="https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png"
+                maximumZ={19}
+                flipY={false}
+                tileSize={256}
+              />
               {greenhouses.map(gh => (
                 <Marker
                   key={gh.id}
                   coordinate={{ latitude: gh.lat, longitude: gh.lng }}
                   title={gh.name}
-                  pinColor={palette.primary}
+                  tracksViewChanges={false}
                   onPress={() => router.push(`/greenhouse/${gh.id}`)}
-                />
+                >
+                  <View style={styles.markerDot} />
+                </Marker>
               ))}
             </MapView>
           </View>
@@ -145,5 +152,21 @@ const GreenhousesScreen = () => {
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  markerDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: palette.primary,
+    borderWidth: 2,
+    borderColor: palette.surface,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+})
 
 export default GreenhousesScreen

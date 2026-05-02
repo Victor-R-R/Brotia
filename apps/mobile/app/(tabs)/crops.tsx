@@ -63,10 +63,12 @@ const CropsScreen = () => {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="flex-row items-center justify-between px-4 pt-4 pb-2">
-        <Text className="text-xl font-bold text-foreground">Mis Cultivos</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 }}>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: palette.foreground }}>
+          Mis Cultivos
+        </Text>
         <TouchableOpacity
-          className="bg-primary rounded-full w-9 h-9 items-center justify-center"
+          style={{ backgroundColor: palette.primary, borderRadius: 20, width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
           onPress={() => router.push('/crop/new')}
         >
           <Plus size={18} color="white" />

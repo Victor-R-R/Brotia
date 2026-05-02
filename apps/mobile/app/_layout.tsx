@@ -24,7 +24,7 @@ const RootLayout = () => {
 
   if (!checked) return null
 
-  return <Stack screenOptions={{ headerShown: false }} />
+  return <Stack screenOptions={{ headerShown: false, headerBackButtonDisplayMode: 'minimal' }} />
 }
 
 export default RootLayout

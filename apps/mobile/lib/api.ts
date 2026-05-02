@@ -128,6 +128,15 @@ export const api = {
       if (!res.ok) throw new Error('Failed to create greenhouse')
       return res.json() as Promise<CreatedGreenhouse>
     },
+    update: async (id: string, data: { name?: string; lat?: number; lng?: number; area?: number | null }): Promise<GreenhouseListItem> => {
+      const res = await apiFetch(`/api/greenhouses/${id}`, { method: 'PUT', body: JSON.stringify(data) })
+      if (!res.ok) throw new Error('Failed to update greenhouse')
+      return res.json() as Promise<GreenhouseListItem>
+    },
+    delete: async (id: string): Promise<void> => {
+      const res = await apiFetch(`/api/greenhouses/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete greenhouse')
+    },
     weather: async (id: string): Promise<WeatherData> => {
       const res = await apiFetch(`/api/greenhouses/${id}/weather`)
       if (!res.ok) throw new Error('Failed to fetch weather')

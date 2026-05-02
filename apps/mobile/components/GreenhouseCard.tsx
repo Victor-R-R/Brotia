@@ -1,5 +1,6 @@
 import { TouchableOpacity, View, Text } from 'react-native'
 import { useRouter } from 'expo-router'
+import { getCropEmoji } from '@/lib/crops'
 import type { CurrentWeather } from '@/lib/weather'
 
 type Props = {
@@ -39,7 +40,7 @@ export const GreenhouseCard = ({
 
       {/* Active crop */}
       {activeCropName ? (
-        <Text className="text-sm text-muted mb-3">🌱 {activeCropName}</Text>
+        <Text className="text-sm text-muted mb-3">{getCropEmoji(activeCropName)} {activeCropName}</Text>
       ) : (
         <View className="mb-3" />
       )}
