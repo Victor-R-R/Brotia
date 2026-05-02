@@ -20,7 +20,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
           targetEmail={session.user.email ?? ''}
         />
       )}
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <Sidebar isAdmin={isAdmin} />
         <main className="flex-1 p-4 md:p-6 pb-nav-safe md:pb-6 overflow-auto bg-background">
           {children}
