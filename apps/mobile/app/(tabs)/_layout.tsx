@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Tabs } from 'expo-router'
 import { View, Text, TouchableOpacity, AppState } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { palette } from '@/lib/theme'
 import { api } from '@/lib/api'
 import { getImpersonatedUser, clearImpersonation, type StoredUser } from '@/lib/auth-storage'
@@ -11,6 +12,7 @@ const TabIcon = ({ emoji }: { emoji: string }) => (
 )
 
 const TabsLayout = () => {
+  const insets = useSafeAreaInsets()
   const [isAdmin,      setIsAdmin]      = useState(false)
   const [impersonated, setImpersonated] = useState<StoredUser | null>(null)
 
@@ -41,8 +43,9 @@ const TabsLayout = () => {
       {impersonated ? (
         <View style={{
           backgroundColor: '#FBBF24',
+          paddingTop: insets.top + 6,
+          paddingBottom: 6,
           paddingHorizontal: 12,
-          paddingVertical: 6,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
