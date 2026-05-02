@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 import { anthropic } from '@ai-sdk/anthropic'
 import { streamText, convertToModelMessages, UIMessage, isFileUIPart, isTextUIPart } from 'ai'
@@ -52,11 +52,10 @@ Si no lo menciona, pregúntalo antes de dar recomendaciones de tratamiento.
 - Sustituir a un técnico cuando la situación lo requiere.`
 
 export const POST = async (req: Request) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const user = await getAuthUser(req)
+  if (!user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
-  // Extract userId once — NextAuth types session.user.id as string | undefined
-  const userId = session.user?.id as string
+  const userId = user.id
 
   try {
     const body = await req.json()

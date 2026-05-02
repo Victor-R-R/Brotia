@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 import { getWeather, checkAlerts } from '@/lib/weather'
 
 type Params = { params: Promise<{ id: string }> }
 
-export const GET = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+export const GET = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -15,7 +15,7 @@ export const GET = async (_req: Request, { params }: Params) => {
 
   try {
     const greenhouse = await db.greenhouse.findFirst({
-      where:  { id, userId: session.user.id },
+      where:  { id, userId: user.id },
       select: { lat: true, lng: true },
     })
 

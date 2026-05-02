@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 
 export type EstadisticasData = {
@@ -17,13 +17,13 @@ export type EstadisticasData = {
   }[]
 }
 
-export const GET = async (_req: Request) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+export const GET = async (req: Request) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
-  const userId = session.user.id
+  const userId = user.id
 
   try {
     const [greenhouses, crops, harvests, alerts, pests] = await Promise.all([

@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 
-export const GET = async () => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export const GET = async (req: Request) => {
+  const authUser = await getAuthUser(req)
+  if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
     const user = await db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: authUser.id },
       select: {
         id:       true,
         email:    true,
@@ -27,8 +27,8 @@ export const GET = async () => {
 }
 
 export const PUT = async (req: Request) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const authUser = await getAuthUser(req)
+  if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
     const body = await req.json() as {
@@ -38,7 +38,7 @@ export const PUT = async (req: Request) => {
       address?:  string
     }
     const user = await db.user.update({
-      where: { id: session.user.id },
+      where: { id: authUser.id },
       data: {
         name:     body.name     ?? null,
         lastName: body.lastName ?? null,
@@ -60,12 +60,12 @@ export const PUT = async (req: Request) => {
   }
 }
 
-export const DELETE = async () => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export const DELETE = async (req: Request) => {
+  const authUser = await getAuthUser(req)
+  if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    await db.user.delete({ where: { id: session.user.id } })
+    await db.user.delete({ where: { id: authUser.id } })
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ error: 'Delete failed' }, { status: 500 })

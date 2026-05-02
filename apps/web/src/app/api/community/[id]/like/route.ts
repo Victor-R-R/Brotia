@@ -1,27 +1,27 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 
 type Params = { params: Promise<{ id: string }> }
 
-export const POST = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+export const POST = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   try {
     const { id: threadId } = await params
 
     const existing = await db.forumThreadLike.findUnique({
-      where: { userId_threadId: { userId: session.user.id, threadId } },
+      where: { userId_threadId: { userId: user.id, threadId } },
     })
 
     if (existing) {
       await db.forumThreadLike.delete({
-        where: { userId_threadId: { userId: session.user.id, threadId } },
+        where: { userId_threadId: { userId: user.id, threadId } },
       })
     } else {
       await db.forumThreadLike.create({
-        data: { userId: session.user.id, threadId },
+        data: { userId: user.id, threadId },
       })
     }
 

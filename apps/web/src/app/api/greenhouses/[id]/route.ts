@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 import { updateGreenhouseSchema } from '@brotia/api'
 
 type Params = { params: Promise<{ id: string }> }
 
-export const GET = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+export const GET = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -15,7 +15,7 @@ export const GET = async (_req: Request, { params }: Params) => {
 
   try {
     const greenhouse = await db.greenhouse.findFirst({
-      where:   { id, userId: session.user.id },
+      where:   { id, userId: user.id },
       include: {
         crops:  true,
         notes:  { orderBy: { createdAt: 'desc' }, take: 5 },
@@ -34,8 +34,8 @@ export const GET = async (_req: Request, { params }: Params) => {
 }
 
 export const PUT = async (req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -48,7 +48,7 @@ export const PUT = async (req: Request, { params }: Params) => {
   }
 
   try {
-    const existing = await db.greenhouse.findFirst({ where: { id, userId: session.user.id } })
+    const existing = await db.greenhouse.findFirst({ where: { id, userId: user.id } })
 
     if (!existing) {
       return NextResponse.json({ error: 'not_found' }, { status: 404 })
@@ -61,9 +61,9 @@ export const PUT = async (req: Request, { params }: Params) => {
   }
 }
 
-export const DELETE = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+export const DELETE = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -71,7 +71,7 @@ export const DELETE = async (_req: Request, { params }: Params) => {
 
   try {
     const result = await db.greenhouse.deleteMany({
-      where: { id, userId: session.user.id },
+      where: { id, userId: user.id },
     })
 
     if (result.count === 0) {

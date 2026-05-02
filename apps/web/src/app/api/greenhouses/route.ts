@@ -1,17 +1,17 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 import { createGreenhouseSchema } from '@brotia/api'
 
-export const GET = async (_req: Request) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+export const GET = async (req: Request) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
   try {
     const greenhouses = await db.greenhouse.findMany({
-      where:   { userId: session.user.id },
+      where:   { userId: user.id },
       include: { crops: { where: { status: 'GROWING' } } },
       orderBy: { createdAt: 'desc' },
     })
@@ -22,8 +22,8 @@ export const GET = async (_req: Request) => {
 }
 
 export const POST = async (req: Request) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -36,7 +36,7 @@ export const POST = async (req: Request) => {
 
   try {
     const greenhouse = await db.greenhouse.create({
-      data: { ...parsed.data, userId: session.user.id },
+      data: { ...parsed.data, userId: user.id },
     })
     return NextResponse.json(greenhouse, { status: 201 })
   } catch {

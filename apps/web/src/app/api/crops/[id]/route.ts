@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 import { updateCropSchema } from '@brotia/api'
 
 type Params = { params: Promise<{ id: string }> }
 
-export const GET = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+export const GET = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -15,7 +15,7 @@ export const GET = async (_req: Request, { params }: Params) => {
 
   try {
     const crop = await db.crop.findFirst({
-      where: { id, greenhouse: { userId: session.user.id } },
+      where: { id, greenhouse: { userId: user.id } },
     })
 
     if (!crop) return NextResponse.json({ error: 'not_found' }, { status: 404 })
@@ -27,8 +27,8 @@ export const GET = async (_req: Request, { params }: Params) => {
 }
 
 export const PUT = async (req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -42,7 +42,7 @@ export const PUT = async (req: Request, { params }: Params) => {
 
   try {
     const existing = await db.crop.findFirst({
-      where: { id, greenhouse: { userId: session.user.id } },
+      where: { id, greenhouse: { userId: user.id } },
     })
 
     if (!existing) {
@@ -56,9 +56,9 @@ export const PUT = async (req: Request, { params }: Params) => {
   }
 }
 
-export const DELETE = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) {
+export const DELETE = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
@@ -66,7 +66,7 @@ export const DELETE = async (_req: Request, { params }: Params) => {
 
   try {
     const result = await db.crop.deleteMany({
-      where: { id, greenhouse: { userId: session.user.id } },
+      where: { id, greenhouse: { userId: user.id } },
     })
 
     if (result.count === 0) {

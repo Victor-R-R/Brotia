@@ -35,6 +35,7 @@ model User {
   forumReplies      ForumReply[]
   forumThreadLikes  ForumThreadLike[]
   forumReplyLikes   ForumReplyLike[]
+  mobileAuthCodes   MobileAuthCode[]
 }
 
 model Account {
@@ -249,4 +250,12 @@ model ForumReplyLike {
   createdAt DateTime   @default(now())
 
   @@unique([userId, replyId])
+}
+
+model MobileAuthCode {
+  code      String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 
 const PAGE_SIZE = 20
@@ -13,8 +13,8 @@ const threadSelect = (userId: string) => ({
 })
 
 export const GET = async (req: Request) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const user = await getAuthUser(req)
+  if (!user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   try {
     const url      = new URL(req.url)
@@ -26,7 +26,7 @@ export const GET = async (req: Request) => {
       orderBy: { createdAt: 'desc' },
       skip:    (page - 1) * PAGE_SIZE,
       take:    PAGE_SIZE,
-      select:  threadSelect(session.user.id),
+      select:  threadSelect(user.id),
     })
 
     return NextResponse.json(threads.map(t => ({
@@ -45,8 +45,8 @@ export const GET = async (req: Request) => {
 }
 
 export const POST = async (req: Request) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const user = await getAuthUser(req)
+  if (!user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   try {
     const { title, content, images, category } = await req.json()
@@ -61,9 +61,9 @@ export const POST = async (req: Request) => {
         content: content.trim(),
         images:  Array.isArray(images) ? images : [],
         category,
-        userId:  session.user.id,
+        userId:  user.id,
       },
-      select: threadSelect(session.user.id),
+      select: threadSelect(user.id),
     })
 
     return NextResponse.json({

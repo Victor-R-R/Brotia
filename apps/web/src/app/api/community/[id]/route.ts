@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 
 type Params = { params: Promise<{ id: string }> }
 
-export const GET = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+export const GET = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   try {
     const { id } = await params
@@ -18,14 +18,14 @@ export const GET = async (_req: Request, { params }: Params) => {
         images: true, createdAt: true, userId: true,
         user: { select: { name: true, lastName: true, avatar: true } },
         _count: { select: { replies: true, likes: true } },
-        likes: { where: { userId: session.user.id }, select: { id: true } },
+        likes: { where: { userId: user.id }, select: { id: true } },
         replies: {
           orderBy: { createdAt: 'asc' },
           select: {
             id: true, content: true, images: true, createdAt: true, userId: true,
             user: { select: { name: true, lastName: true, avatar: true } },
             _count: { select: { likes: true } },
-            likes: { where: { userId: session.user.id }, select: { id: true } },
+            likes: { where: { userId: user.id }, select: { id: true } },
           },
         },
       },
@@ -57,9 +57,9 @@ export const GET = async (_req: Request, { params }: Params) => {
   }
 }
 
-export const DELETE = async (_req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+export const DELETE = async (req: Request, { params }: Params) => {
+  const user = await getAuthUser(req)
+  if (!user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   try {
     const { id } = await params
@@ -70,7 +70,7 @@ export const DELETE = async (_req: Request, { params }: Params) => {
     })
 
     if (!thread) return NextResponse.json({ error: 'not_found' }, { status: 404 })
-    if (thread.userId !== session.user.id) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+    if (thread.userId !== user.id) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
 
     await db.forumThread.delete({ where: { id } })
 

@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 
 type Params = { params: Promise<{ id: string }> }
 
 export const POST = async (req: Request, { params }: Params) => {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const user = await getAuthUser(req)
+  if (!user?.id) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
   try {
     const { id: threadId } = await params
@@ -27,7 +27,7 @@ export const POST = async (req: Request, { params }: Params) => {
         content:  content.trim(),
         images:   Array.isArray(images) ? images : [],
         threadId,
-        userId:   session.user.id,
+        userId:   user.id,
       },
       select: {
         id: true, content: true, images: true, createdAt: true, userId: true,

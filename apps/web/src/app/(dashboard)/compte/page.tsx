@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { db } from '@brotia/db'
 import { CompteForm } from '@/components/compte/compte-form'
+import { MobileConnectCard } from '@/components/compte/mobile-connect-card'
 
 const ComptePage = async () => {
   const session = await auth()
@@ -28,7 +29,10 @@ const ComptePage = async () => {
         <h1 className="font-heading text-2xl font-bold text-foreground">Mi cuenta</h1>
         <p className="text-sm text-muted mt-1">Gestiona tu perfil y preferencias</p>
       </div>
-      <CompteForm user={user} />
+      <div className="space-y-6 max-w-lg">
+        <CompteForm user={user} />
+        <MobileConnectCard />
+      </div>
     </div>
   )
 }
