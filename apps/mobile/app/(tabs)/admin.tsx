@@ -10,6 +10,7 @@ import {
   clearImpersonation,
   type StoredUser,
 } from '@/lib/auth-storage'
+import { notifyImpersonationChange } from '@/lib/impersonation-events'
 
 const AdminScreen = () => {
   const [users,           setUsers]           = useState<AdminUser[]>([])
@@ -50,6 +51,7 @@ const AdminScreen = () => {
               const { token, user: targetUser } = await api.admin.users.impersonate(user.id)
               await saveImpersonation(token, targetUser)
               setImpersonated(targetUser)
+              notifyImpersonationChange()
               Alert.alert('✓ Activo', `Ahora navegas como ${targetUser.email}.\nExpira en 1 hora.`)
             } catch {
               Alert.alert('Error', 'No se pudo impersonar al usuario.')
@@ -65,6 +67,7 @@ const AdminScreen = () => {
   const handleExitImpersonation = async () => {
     await clearImpersonation()
     setImpersonated(null)
+    notifyImpersonationChange()
     Alert.alert('✓ Saliste', 'Has vuelto a tu cuenta de administrador.')
   }
 

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { View, Text, ScrollView, RefreshControl, TouchableOpacity, StyleSheet } from 'react-native'
 import MapView, { Marker, UrlTile } from 'react-native-maps'
 import { useRouter } from 'expo-router'
+import { useFocusEffect } from '@react-navigation/native'
 import { Plus } from 'lucide-react-native'
 import { GreenhouseCard } from '@/components/GreenhouseCard'
 import { api } from '@/lib/api'
@@ -45,7 +46,7 @@ const GreenhousesScreen = () => {
     }
   }, [])
 
-  useEffect(() => { fetchAll() }, [fetchAll])
+  useFocusEffect(useCallback(() => { fetchAll() }, [fetchAll]))
 
   const fitMap = useCallback(() => {
     const data = greenhousesRef.current
