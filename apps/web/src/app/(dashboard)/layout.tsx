@@ -13,7 +13,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const isImpersonating = !!session.user._impersonatedBy
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-dvh flex-col overflow-hidden">
       {isImpersonating && (
         <ImpersonationBanner
           targetName={session.user.name ?? null}
