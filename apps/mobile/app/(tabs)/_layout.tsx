@@ -76,8 +76,9 @@ const TabsLayout = () => {
             backgroundColor: palette.surface,
             borderTopColor:  palette.border,
           },
-          headerStyle:     { backgroundColor: palette.surface },
-          headerTintColor: palette.foreground,
+          headerStyle:          { backgroundColor: palette.surface },
+          headerTintColor:      palette.foreground,
+          headerStatusBarHeight: impersonated ? 0 : undefined,
         }}
       >
         <Tabs.Screen
