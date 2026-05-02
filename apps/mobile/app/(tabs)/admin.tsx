@@ -1,14 +1,26 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native'
 import { api } from '@/lib/api'
 import type { AdminUser } from '@/lib/api'
 import { palette } from '@/lib/theme'
+import {
+  saveImpersonation,
+  getImpersonatedUser,
+  clearImpersonation,
+  type StoredUser,
+} from '@/lib/auth-storage'
 
 const AdminScreen = () => {
-  const [users,      setUsers]      = useState<AdminUser[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
+  const [users,           setUsers]           = useState<AdminUser[]>([])
+  const [loading,         setLoading]         = useState(true)
+  const [refreshing,      setRefreshing]      = useState(false)
+  const [impersonated,    setImpersonated]    = useState<StoredUser | null>(null)
+  const [impersonating,   setImpersonating]   = useState<string | null>(null)
+
+  useEffect(() => {
+    getImpersonatedUser().then(setImpersonated)
+  }, [])
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -23,6 +35,38 @@ const AdminScreen = () => {
   }, [])
 
   useFocusEffect(useCallback(() => { fetchUsers() }, [fetchUsers]))
+
+  const handleImpersonate = (user: AdminUser) => {
+    Alert.alert(
+      'Impersonar usuario',
+      `¿Entrar como "${user.email}"? El acceso dura 1 hora.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Impersonar',
+          onPress: async () => {
+            setImpersonating(user.id)
+            try {
+              const { token, user: targetUser } = await api.admin.users.impersonate(user.id)
+              await saveImpersonation(token, targetUser)
+              setImpersonated(targetUser)
+              Alert.alert('✓ Activo', `Ahora navegas como ${targetUser.email}.\nExpira en 1 hora.`)
+            } catch {
+              Alert.alert('Error', 'No se pudo impersonar al usuario.')
+            } finally {
+              setImpersonating(null)
+            }
+          },
+        },
+      ],
+    )
+  }
+
+  const handleExitImpersonation = async () => {
+    await clearImpersonation()
+    setImpersonated(null)
+    Alert.alert('✓ Saliste', 'Has vuelto a tu cuenta de administrador.')
+  }
 
   const handleRoleToggle = (user: AdminUser) => {
     const next = user.role === 'SUPERADMIN' ? 'USER' : 'SUPERADMIN'
@@ -83,6 +127,28 @@ const AdminScreen = () => {
         <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUsers() }} tintColor={palette.primary} />
       }
     >
+      {/* Impersonation banner */}
+      {impersonated ? (
+        <View style={{
+          backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#F59E0B',
+          borderRadius: 10, padding: 12, marginBottom: 16,
+          flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#92400E' }}>🎭 Impersonando</Text>
+            <Text style={{ fontSize: 11, color: '#92400E', marginTop: 2 }} numberOfLines={1}>
+              {impersonated.name ?? ''} {impersonated.email}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleExitImpersonation}
+            style={{ backgroundColor: '#F59E0B', borderRadius: 6, paddingHorizontal: 10, paddingVertical: 5 }}
+          >
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#fff' }}>Salir</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
+
       <Text style={{ fontSize: 20, fontWeight: '700', color: palette.foreground, marginBottom: 4 }}>
         🛡️ Admin
       </Text>
@@ -91,15 +157,17 @@ const AdminScreen = () => {
       </Text>
 
       {users.map(u => {
-        const fullName = [u.name, u.lastName].filter(Boolean).join(' ') || '—'
+        const fullName     = [u.name, u.lastName].filter(Boolean).join(' ') || '—'
         const isSuperadmin = u.role === 'SUPERADMIN'
+        const isActive     = impersonated?.id === u.id
+
         return (
           <View
             key={u.id}
             style={{
-              backgroundColor: palette.surface,
+              backgroundColor: isActive ? '#FFFBEB' : palette.surface,
               borderWidth: 1,
-              borderColor: palette.border,
+              borderColor: isActive ? '#F59E0B' : palette.border,
               borderRadius: 12,
               padding: 12,
               marginBottom: 10,
@@ -124,7 +192,23 @@ const AdminScreen = () => {
               🏡 {u._count.greenhouses} inv. · {u.provider ?? 'email'} · {new Date(u.createdAt).toLocaleDateString('es-ES')}
             </Text>
 
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ flexDirection: 'row', gap: 6 }}>
+              <TouchableOpacity
+                style={{
+                  flex: 1, paddingVertical: 7, borderRadius: 8,
+                  borderWidth: 1, borderColor: '#F59E0B', alignItems: 'center',
+                  opacity: impersonating === u.id ? 0.6 : 1,
+                }}
+                onPress={() => isActive ? handleExitImpersonation() : handleImpersonate(u)}
+                disabled={impersonating === u.id}
+              >
+                {impersonating === u.id
+                  ? <ActivityIndicator size="small" color="#F59E0B" />
+                  : <Text style={{ fontSize: 12, color: '#92400E' }}>
+                      {isActive ? '↩ Salir' : '🎭 Impersonar'}
+                    </Text>
+                }
+              </TouchableOpacity>
               <TouchableOpacity
                 style={{
                   flex: 1, paddingVertical: 7, borderRadius: 8,
@@ -138,12 +222,12 @@ const AdminScreen = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
-                  flex: 1, paddingVertical: 7, borderRadius: 8,
+                  paddingVertical: 7, paddingHorizontal: 12, borderRadius: 8,
                   borderWidth: 1, borderColor: palette.danger, alignItems: 'center',
                 }}
                 onPress={() => handleDelete(u)}
               >
-                <Text style={{ fontSize: 12, color: palette.danger }}>🗑️ Eliminar</Text>
+                <Text style={{ fontSize: 12, color: palette.danger }}>🗑️</Text>
               </TouchableOpacity>
             </View>
           </View>

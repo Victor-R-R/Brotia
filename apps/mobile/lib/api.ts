@@ -107,12 +107,13 @@ export type EstadisticasData = {
   }[]
 }
 
-import { getToken } from '@/lib/auth-storage'
+import { getToken, getImpersonationToken } from '@/lib/auth-storage'
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
-const apiFetch = async (path: string, init: RequestInit = {}): Promise<Response> => {
-  const token = await getToken()
+const apiFetch = async (path: string, init: RequestInit = {}, skipImpersonation = false): Promise<Response> => {
+  const impersonateToken = skipImpersonation ? null : await getImpersonationToken()
+  const token = impersonateToken ?? await getToken()
   const headers: Record<string, string> = {
     ...(init.headers as Record<string, string> ?? {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -267,17 +268,22 @@ export const api = {
   admin: {
     users: {
       list: async (): Promise<AdminUser[]> => {
-        const res = await apiFetch('/api/admin/users')
+        const res = await apiFetch('/api/admin/users', {}, true)
         if (!res.ok) throw new Error('Failed to fetch users')
         return res.json() as Promise<AdminUser[]>
       },
       setRole: async (id: string, role: 'USER' | 'SUPERADMIN'): Promise<void> => {
-        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) })
+        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'PATCH', body: JSON.stringify({ role }) }, true)
         if (!res.ok) throw new Error('Failed to update role')
       },
       delete: async (id: string): Promise<void> => {
-        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' })
+        const res = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' }, true)
         if (!res.ok) throw new Error('Failed to delete user')
+      },
+      impersonate: async (id: string): Promise<{ token: string; user: { id: string; email: string; name: string | null; lastName: string | null } }> => {
+        const res = await apiFetch(`/api/admin/impersonate/mobile/${id}`, { method: 'POST' }, true)
+        if (!res.ok) throw new Error('Failed to impersonate user')
+        return res.json()
       },
     },
   },
