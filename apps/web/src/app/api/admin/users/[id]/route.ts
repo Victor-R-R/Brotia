@@ -1,30 +1,35 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 import { z } from 'zod'
 
+const requireSuperadmin = async (req: Request) => {
+  const authUser = await getAuthUser(req)
+  if (!authUser?.id) return null
+  const dbUser = await db.user.findUnique({ where: { id: authUser.id }, select: { id: true, role: true } })
+  if (dbUser?.role !== 'SUPERADMIN') return null
+  return dbUser
+}
+
 export const DELETE = async (
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) => {
-  const session = await auth()
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-  if (session.user.role !== 'SUPERADMIN') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const admin = await requireSuperadmin(req)
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { id } = await params
 
-  if (id === session.user.id) {
+  if (id === admin.id) {
     return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
   }
 
-  await db.user.delete({ where: { id } })
-
-  return NextResponse.json({ ok: true })
+  try {
+    await db.user.delete({ where: { id } })
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: 'Delete failed' }, { status: 500 })
+  }
 }
 
 const patchSchema = z.object({
@@ -35,18 +40,12 @@ export const PATCH = async (
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) => {
-  const session = await auth()
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-  if (session.user.role !== 'SUPERADMIN') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const admin = await requireSuperadmin(req)
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { id } = await params
 
-  if (id === session.user.id) {
+  if (id === admin.id) {
     return NextResponse.json({ error: 'Cannot change your own role' }, { status: 400 })
   }
 
@@ -56,11 +55,14 @@ export const PATCH = async (
     return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   }
 
-  const user = await db.user.update({
-    where: { id },
-    data: { role: parsed.data.role },
-    select: { id: true, email: true, role: true },
-  })
-
-  return NextResponse.json(user)
+  try {
+    const user = await db.user.update({
+      where: { id },
+      data:  { role: parsed.data.role },
+      select: { id: true, email: true, role: true },
+    })
+    return NextResponse.json(user)
+  } catch {
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 })
+  }
 }

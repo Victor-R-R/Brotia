@@ -2,10 +2,17 @@ import { NextResponse } from 'next/server'
 import { getAuthUser } from '@/lib/get-auth-user'
 import { db } from '@brotia/db'
 
-export const GET = async (req: Request) => {
+const requireSuperadmin = async (req: Request) => {
   const authUser = await getAuthUser(req)
-  if (!authUser?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (authUser.role !== 'SUPERADMIN') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!authUser?.id) return null
+  const dbUser = await db.user.findUnique({ where: { id: authUser.id }, select: { id: true, role: true } })
+  if (dbUser?.role !== 'SUPERADMIN') return null
+  return dbUser
+}
+
+export const GET = async (req: Request) => {
+  const admin = await requireSuperadmin(req)
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   try {
     const users = await db.user.findMany({
