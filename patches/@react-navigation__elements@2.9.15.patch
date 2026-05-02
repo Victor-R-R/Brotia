@@ -1,0 +1,54 @@
+diff --git a/lib/module/ResourceSavingView.js b/lib/module/ResourceSavingView.js
+index eb063aba2c7e55e0fa276ec4a95bdcd1ebd5ce03..d2427fd920b7406ba6ebde8f68b5274d36243110 100644
+--- a/lib/module/ResourceSavingView.js
++++ b/lib/module/ResourceSavingView.js
+@@ -17,26 +17,28 @@ export function ResourceSavingView({
+     , {
+       hidden: !visible,
+       style: [{
+-        display: visible ? 'flex' : 'none'
++        display: visible ? 'flex' : 'none',
++        pointerEvents: visible ? 'auto' : 'none'
+       }, styles.container, style],
+-      pointerEvents: visible ? 'auto' : 'none',
+       ...rest,
+       children: children
+     });
+   }
+   return /*#__PURE__*/_jsx(View, {
+-    style: [styles.container, style]
++    style: [styles.container, {
++      pointerEvents: visible ? 'auto' : 'none'
++    }, style]
+     // box-none doesn't seem to work properly on Android
+     ,
+-    pointerEvents: visible ? 'auto' : 'none',
+     children: /*#__PURE__*/_jsx(View, {
+       collapsable: false,
+       removeClippedSubviews:
+       // On iOS & macOS, set removeClippedSubviews to true only when not focused
+       // This is an workaround for a bug where the clipped view never re-appears
+       Platform.OS === 'ios' || Platform.OS === 'macos' ? !visible : true,
+-      pointerEvents: visible ? 'auto' : 'none',
+-      style: visible ? styles.attached : styles.detached,
++      style: [visible ? styles.attached : styles.detached, {
++        pointerEvents: visible ? 'auto' : 'none'
++      }],
+       children: children
+     })
+   });
+diff --git a/lib/module/Screen.js b/lib/module/Screen.js
+index e4ff1748799cfd5e6f52ec7a593d522be0164916..ba78d5f62ee89cc850a01e4b30f581f2cace738f 100644
+--- a/lib/module/Screen.js
++++ b/lib/module/Screen.js
+@@ -52,7 +52,9 @@ export function Screen(props) {
+         }] : null],
+         children: /*#__PURE__*/_jsx(View, {
+           ref: headerRef,
+-          pointerEvents: "box-none",
++          style: {
++            pointerEvents: "box-none"
++          },
+           onLayout: e => {
+             const {
+               height

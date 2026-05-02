@@ -173,8 +173,8 @@ export const ChatInterface = () => {
   const isLoading = status === 'streaming' || status === 'submitted'
 
   return (
-    // Negative margins cancel the dashboard layout's padding, h-dvh fills viewport
-    <div className="-m-4 -mb-20 md:-m-6 flex h-dvh overflow-hidden bg-surface">
+    // Negative margins cancel the dashboard layout's padding, h-chat fills space above bottom nav
+    <div className="-m-4 md:-m-6 flex h-chat overflow-hidden bg-surface">
 
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
@@ -321,7 +321,7 @@ export const ChatInterface = () => {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Describe el problema de tu cultivo..."
+              placeholder="Describe tu consulta..."
               rows={1}
               disabled={isLoading}
               className="flex-1 resize-none bg-surface-alt border border-border rounded-md px-3 py-2.5 text-base md:text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary disabled:opacity-50 max-h-32 overflow-y-auto"

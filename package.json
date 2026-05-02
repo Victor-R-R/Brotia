@@ -15,8 +15,12 @@
   },
   "packageManager": "pnpm@9.15.0",
   "pnpm": {
+    "overrides": {
+      "react-native-screens": "~4.16.0"
+    },
     "patchedDependencies": {
-      "@react-navigation/bottom-tabs@7.15.10": "patches/@react-navigation__bottom-tabs@7.15.10.patch"
+      "@react-navigation/bottom-tabs@7.15.10": "patches/@react-navigation__bottom-tabs@7.15.10.patch",
+      "@react-navigation/elements@2.9.15": "patches/@react-navigation__elements@2.9.15.patch"
     }
   }
 }
