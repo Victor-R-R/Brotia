@@ -1,16 +1,40 @@
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native'
+import {
+  View, Text, TextInput, TouchableOpacity, ScrollView,
+  Alert, Modal, FlatList, SafeAreaView, Pressable,
+} from 'react-native'
 import { useRouter, Stack } from 'expo-router'
 import { api } from '@/lib/api'
 import type { GreenhouseListItem } from '@/lib/api'
 import { palette } from '@/lib/theme'
+import { CROP_EMOJI, CROP_NAMES, getCropEmoji, matchesCropSearch } from '@/lib/crops'
+
+type GhOption = Pick<GreenhouseListItem, 'id' | 'name'>
+type CropItem  = { name: string; emoji: string } | { name: '__otro'; emoji: string }
+
+const ALL_ITEMS: CropItem[] = [
+  ...CROP_NAMES.map(name => ({ name, emoji: CROP_EMOJI[name] ?? '🌱' })),
+  { name: '__otro', emoji: '✏️' },
+]
 
 const NewCropScreen = () => {
   const router = useRouter()
-  const [form,        setForm]        = useState({ name: '', variety: '', plantedAt: '', expectedHarvestAt: '' })
-  const [greenhouses, setGreenhouses] = useState<Pick<GreenhouseListItem, 'id' | 'name'>[]>([])
-  const [selectedGh,  setSelectedGh]  = useState<string>('')
-  const [loading,     setLoading]     = useState(false)
+  const [selectedCrop,      setSelectedCrop]      = useState('')
+  const [customName,        setCustomName]        = useState('')
+  const [pickerOpen,        setPickerOpen]        = useState(false)
+  const [search,            setSearch]            = useState('')
+  const [variety,           setVariety]           = useState('')
+  const [plantedAt,         setPlantedAt]         = useState('')
+  const [expectedHarvestAt, setExpectedHarvestAt] = useState('')
+  const [greenhouses,       setGreenhouses]       = useState<GhOption[]>([])
+  const [selectedGh,        setSelectedGh]        = useState('')
+  const [loading,           setLoading]           = useState(false)
+
+  const cropName = selectedCrop === '__otro' ? customName : selectedCrop
+
+  const filtered = ALL_ITEMS.filter(item =>
+    item.name === '__otro' || matchesCropSearch(item.name, search)
+  )
 
   const loadGreenhouses = useCallback(async () => {
     try {
@@ -24,12 +48,19 @@ const NewCropScreen = () => {
 
   useEffect(() => { loadGreenhouses() }, [loadGreenhouses])
 
+  const selectCrop = (name: string) => {
+    setSelectedCrop(name)
+    setPickerOpen(false)
+    setSearch('')
+    if (name !== '__otro') setCustomName('')
+  }
+
   const handleSubmit = async () => {
-    if (!form.name.trim()) {
-      Alert.alert('Campo requerido', 'El nombre del cultivo es obligatorio')
+    if (!cropName.trim()) {
+      Alert.alert('Campo requerido', 'Selecciona o escribe el nombre del cultivo')
       return
     }
-    if (!form.plantedAt.trim()) {
+    if (!plantedAt.trim()) {
       Alert.alert('Campo requerido', 'La fecha de plantación es obligatoria (AAAA-MM-DD)')
       return
     }
@@ -37,7 +68,7 @@ const NewCropScreen = () => {
       Alert.alert('Campo requerido', 'Selecciona un invernadero')
       return
     }
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(form.plantedAt)) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(plantedAt)) {
       Alert.alert('Formato inválido', 'Usa el formato AAAA-MM-DD para la fecha')
       return
     }
@@ -45,13 +76,13 @@ const NewCropScreen = () => {
     setLoading(true)
     try {
       await api.crops.create({
-        name:         form.name.trim(),
-        variety:      form.variety.trim() || undefined,
-        plantedAt:    new Date(form.plantedAt).toISOString(),
-        expectedHarvestAt: form.expectedHarvestAt.trim()
-          ? new Date(form.expectedHarvestAt).toISOString()
+        name:              cropName.trim(),
+        variety:           variety.trim() || undefined,
+        plantedAt:         new Date(plantedAt).toISOString(),
+        expectedHarvestAt: expectedHarvestAt.trim()
+          ? new Date(expectedHarvestAt).toISOString()
           : undefined,
-        greenhouseId: selectedGh,
+        greenhouseId:      selectedGh,
       })
       router.back()
     } catch {
@@ -61,38 +92,89 @@ const NewCropScreen = () => {
     }
   }
 
+  const triggerLabel = selectedCrop && selectedCrop !== '__otro'
+    ? `${getCropEmoji(selectedCrop)}  ${selectedCrop}`
+    : selectedCrop === '__otro'
+      ? '✏️  Otro'
+      : null
+
   return (
     <>
       <Stack.Screen options={{ title: 'Nuevo cultivo', headerShown: true }} />
-      <ScrollView className="flex-1 bg-background px-4 pt-4">
+      <ScrollView className="flex-1 bg-background px-4 pt-4" keyboardShouldPersistTaps="handled">
 
-        {[
-          { key: 'name',     label: 'Nombre del cultivo', placeholder: 'Tomates cherry', required: true  },
-          { key: 'variety',  label: 'Variedad (opcional)', placeholder: 'Roma',           required: false },
-          { key: 'plantedAt',
-            label: 'Fecha de plantación (AAAA-MM-DD)',
-            placeholder: '2026-04-27',
-            required: true },
-          { key: 'expectedHarvestAt',
-            label: 'Cosecha prevista (opcional, AAAA-MM-DD)',
-            placeholder: '2026-07-15',
-            required: false },
-        ].map(field => (
-          <View key={field.key} className="mb-4">
-            <Text className="text-sm font-medium text-foreground mb-1.5">{field.label}</Text>
+        {/* Crop picker trigger */}
+        <View className="mb-5">
+          <Text className="text-sm font-medium text-foreground mb-1.5">Tipo de cultivo</Text>
+          <TouchableOpacity
+            onPress={() => setPickerOpen(true)}
+            className="flex-row items-center justify-between px-3 py-3 rounded-xl border bg-surface"
+            style={{ borderColor: selectedCrop ? palette.primary : palette.border }}
+          >
+            {triggerLabel ? (
+              <Text className="text-sm font-medium text-foreground flex-1">{triggerLabel}</Text>
+            ) : (
+              <Text className="text-sm flex-1" style={{ color: palette.muted }}>
+                Selecciona un cultivo…
+              </Text>
+            )}
+            <Text className="text-muted text-base">▾</Text>
+          </TouchableOpacity>
+
+          {/* Custom name input when "Otro" is selected */}
+          {selectedCrop === '__otro' ? (
             <TextInput
-              className="bg-surface border border-border rounded-xl px-3 py-3 text-sm text-foreground"
-              placeholder={field.placeholder}
+              className="bg-surface border border-border rounded-xl px-3 py-3 text-sm text-foreground mt-2"
+              placeholder="Nombre del cultivo…"
               placeholderTextColor={palette.muted}
-              value={form[field.key as keyof typeof form]}
-              onChangeText={v => setForm(prev => ({ ...prev, [field.key]: v }))}
-              keyboardType={field.key.includes('At') ? 'numbers-and-punctuation' : 'default'}
+              value={customName}
+              onChangeText={setCustomName}
+              autoFocus
             />
-          </View>
-        ))}
+          ) : null}
+        </View>
 
+        {/* Variety */}
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-foreground mb-1.5">Variedad (opcional)</Text>
+          <TextInput
+            className="bg-surface border border-border rounded-xl px-3 py-3 text-sm text-foreground"
+            placeholder="Roma"
+            placeholderTextColor={palette.muted}
+            value={variety}
+            onChangeText={setVariety}
+          />
+        </View>
+
+        {/* Fecha plantación */}
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-foreground mb-1.5">Fecha de plantación (AAAA-MM-DD)</Text>
+          <TextInput
+            className="bg-surface border border-border rounded-xl px-3 py-3 text-sm text-foreground"
+            placeholder="2026-04-27"
+            placeholderTextColor={palette.muted}
+            value={plantedAt}
+            onChangeText={setPlantedAt}
+            keyboardType="numbers-and-punctuation"
+          />
+        </View>
+
+        {/* Cosecha prevista */}
+        <View className="mb-4">
+          <Text className="text-sm font-medium text-foreground mb-1.5">Cosecha prevista (opcional, AAAA-MM-DD)</Text>
+          <TextInput
+            className="bg-surface border border-border rounded-xl px-3 py-3 text-sm text-foreground"
+            placeholder="2026-07-15"
+            placeholderTextColor={palette.muted}
+            value={expectedHarvestAt}
+            onChangeText={setExpectedHarvestAt}
+            keyboardType="numbers-and-punctuation"
+          />
+        </View>
+
+        {/* Invernadero */}
         {greenhouses.length > 0 ? (
-          <View className="mb-4">
+          <View className="mb-5">
             <Text className="text-sm font-medium text-foreground mb-2">Invernadero</Text>
             {greenhouses.map(gh => (
               <TouchableOpacity
@@ -128,6 +210,96 @@ const NewCropScreen = () => {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Crop picker modal */}
+      <Modal
+        visible={pickerOpen}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setPickerOpen(false)}
+      >
+        <SafeAreaView className="flex-1 bg-background">
+          {/* Header */}
+          <View
+            className="flex-row items-center justify-between px-4 py-3 border-b"
+            style={{ borderColor: palette.border }}
+          >
+            <Text className="text-base font-semibold text-foreground">Tipo de cultivo</Text>
+            <TouchableOpacity
+              onPress={() => { setPickerOpen(false); setSearch('') }}
+              className="px-3 py-1.5 rounded-lg"
+              style={{ backgroundColor: palette.surfaceAlt ?? '#E6F5EA' }}
+            >
+              <Text className="text-sm font-medium" style={{ color: palette.primary }}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Search */}
+          <View className="px-4 py-2" style={{ backgroundColor: palette.surface ?? '#fff' }}>
+            <View
+              className="flex-row items-center gap-2 px-3 py-2 rounded-xl"
+              style={{ backgroundColor: palette.surfaceAlt ?? '#E6F5EA' }}
+            >
+              <Text style={{ color: palette.muted }}>🔍</Text>
+              <TextInput
+                className="flex-1 text-sm text-foreground"
+                placeholder="Buscar cultivo…"
+                placeholderTextColor={palette.muted}
+                value={search}
+                onChangeText={setSearch}
+                autoFocus
+              />
+              {search ? (
+                <TouchableOpacity onPress={() => setSearch('')}>
+                  <Text style={{ color: palette.muted }}>✕</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </View>
+
+          {/* List */}
+          <FlatList
+            data={filtered}
+            keyExtractor={item => item.name}
+            keyboardShouldPersistTaps="handled"
+            ItemSeparatorComponent={() => (
+              <View style={{ height: 1, backgroundColor: palette.borderSubtle ?? '#C4E8CA', marginHorizontal: 16 }} />
+            )}
+            renderItem={({ item }) => {
+              const isSelected = selectedCrop === item.name
+              const label      = item.name === '__otro' ? 'Otro (escribir manualmente)' : item.name
+
+              return (
+                <Pressable
+                  onPress={() => selectCrop(item.name)}
+                  className="flex-row items-center gap-3 px-4 py-3.5"
+                  style={({ pressed }) => ({
+                    backgroundColor: isSelected
+                      ? '#f0fdf4'
+                      : pressed
+                        ? (palette.surfaceAlt ?? '#E6F5EA')
+                        : undefined,
+                  })}
+                >
+                  <Text className="text-xl w-8 text-center leading-none">{item.emoji}</Text>
+                  <Text
+                    className="flex-1 text-sm"
+                    style={{
+                      color:      isSelected ? palette.primary : (palette.foreground ?? '#0B2610'),
+                      fontWeight: isSelected ? '600' : '400',
+                    }}
+                  >
+                    {label}
+                  </Text>
+                  {isSelected ? (
+                    <Text style={{ color: palette.primary }}>✓</Text>
+                  ) : null}
+                </Pressable>
+              )
+            }}
+          />
+        </SafeAreaView>
+      </Modal>
     </>
   )
 }

@@ -10,8 +10,8 @@ type StatusCount = {
 type Props = { statusCounts: StatusCount[] }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  GROWING:   { label: 'En crecimiento', color: '#2D5A1B' },
-  HARVESTED: { label: 'Cosechados',     color: '#8DB84A' },
+  GROWING:   { label: 'En crecimiento', color: '#1A7A30' },
+  HARVESTED: { label: 'Cosechados',     color: '#4DBB5A' },
   FAILED:    { label: 'Fallidos',       color: '#FCA5A5' },
 }
 
@@ -21,7 +21,7 @@ export const CropStatusChart = ({ statusCounts }: Props) => {
     .map(s => ({
       name: STATUS_CONFIG[s.status]?.label ?? s.status,
       value: s.count,
-      color: STATUS_CONFIG[s.status]?.color ?? '#A8C185',
+      color: STATUS_CONFIG[s.status]?.color ?? '#7ACC82',
     }))
 
   if (data.length === 0) {
@@ -58,7 +58,7 @@ export const CropStatusChart = ({ statusCounts }: Props) => {
           <Tooltip
             contentStyle={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid #C8DEB5',
+              border: '1px solid #9ED4A6',
               borderRadius: '8px',
               fontSize: '12px',
             }}
@@ -67,7 +67,7 @@ export const CropStatusChart = ({ statusCounts }: Props) => {
           <Legend
             iconType="circle"
             iconSize={8}
-            formatter={(value) => <span style={{ fontSize: 11, color: '#4B6838' }}>{value}</span>}
+            formatter={(value) => <span style={{ fontSize: 11, color: '#1F5C2E' }}>{value}</span>}
           />
         </PieChart>
       </ResponsiveContainer>

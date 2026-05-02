@@ -13,5 +13,10 @@
     "turbo": "^2.3.0",
     "typescript": "^5.7.0"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "patchedDependencies": {
+      "@react-navigation/bottom-tabs@7.15.10": "patches/@react-navigation__bottom-tabs@7.15.10.patch"
+    }
+  }
 }

@@ -15,7 +15,7 @@ type HarvestEntry = {
 
 type Props = { entries: HarvestEntry[] }
 
-const PALETTE = ['#2D5A1B', '#3D7525', '#5A9E3E', '#8DB84A', '#6B7C3D']
+const PALETTE = ['#1A7A30', '#22A040', '#4DBB5A', '#7ACC82', '#3D6E47']
 
 export const GreenhouseComparisonChart = ({ entries }: Props) => {
   const data = useMemo(() => {
@@ -44,17 +44,17 @@ export const GreenhouseComparisonChart = ({ entries }: Props) => {
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} layout="vertical" margin={{ top: 4, right: 16, left: 8, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#C8DEB5" horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#9ED4A6" horizontal={false} />
           <XAxis
             type="number"
-            tick={{ fontSize: 11, fill: '#7A9B6A' }}
+            tick={{ fontSize: 11, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             type="category"
             dataKey="invernadero"
-            tick={{ fontSize: 11, fill: '#7A9B6A' }}
+            tick={{ fontSize: 11, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
             width={90}
@@ -62,7 +62,7 @@ export const GreenhouseComparisonChart = ({ entries }: Props) => {
           <Tooltip
             contentStyle={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid #C8DEB5',
+              border: '1px solid #9ED4A6',
               borderRadius: '8px',
               fontSize: '12px',
             }}

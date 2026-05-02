@@ -50,7 +50,7 @@ export const HarvestBarChart = ({ entries, year }: Props) => {
           <select
             value={effectiveYear}
             onChange={e => setInternalYear(Number(e.target.value))}
-            className="text-sm bg-surface-alt border border-border rounded-md px-2 py-1 text-foreground"
+            className="text-sm bg-surface-alt border border-border rounded-md px-2 py-1.5 text-foreground"
           >
             {years.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
@@ -58,28 +58,28 @@ export const HarvestBarChart = ({ entries, year }: Props) => {
       </div>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#C8DEB5" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#9ED4A6" />
           <XAxis
             dataKey="mes"
-            tick={{ fontSize: 11, fill: '#7A9B6A' }}
+            tick={{ fontSize: 11, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: '#7A9B6A' }}
+            tick={{ fontSize: 11, fill: '#4E8A58' }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
             contentStyle={{
               backgroundColor: '#FFFFFF',
-              border: '1px solid #C8DEB5',
+              border: '1px solid #9ED4A6',
               borderRadius: '8px',
               fontSize: '12px',
             }}
             formatter={(v) => [`${Number(v).toFixed(1)} kg`, 'Cosechado']}
           />
-          <Bar dataKey="kg" fill="#2D5A1B" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="kg" fill="#1A7A30" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

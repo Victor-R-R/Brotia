@@ -78,6 +78,21 @@ export type ThreadDetail = Omit<ThreadSummary, 'contentPreview'> & {
 
 export type LikeResult = { liked: boolean; count: number }
 
+export type EstadisticasData = {
+  greenhouseCount:     number
+  cropCounts:          { GROWING: number; HARVESTED: number; FAILED: number }
+  harvestTotalKg:      number
+  harvestLast30DaysKg: number
+  alertCounts:         Record<string, number>
+  pestCount:           number
+  recentHarvests: {
+    cropName:       string
+    greenhouseName: string
+    kg:             number
+    harvestedAt:    string
+  }[]
+}
+
 const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
 export const api = {
@@ -155,6 +170,14 @@ export const api = {
       })
       if (!res.ok) throw new Error('Failed to create crop')
       return res.json() as Promise<{ id: string }>
+    },
+  },
+
+  estadisticas: {
+    get: async (): Promise<EstadisticasData> => {
+      const res = await fetch(`${API_BASE}/api/estadisticas`, { credentials: 'include' })
+      if (!res.ok) throw new Error('Failed to fetch estadisticas')
+      return res.json() as Promise<EstadisticasData>
     },
   },
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Trash2, Scale } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import type { HarvestRecord } from '@brotia/db'
 
 export const HarvestList = ({ cropId, records }: { cropId: string; records: HarvestRecord[] }) => {
@@ -21,21 +21,25 @@ export const HarvestList = ({ cropId, records }: { cropId: string; records: Harv
   }
 
   if (records.length === 0) {
-    return <p className="text-xs text-subtle">Sin recogidas registradas aún.</p>
+    return (
+      <p className="text-xs text-subtle flex items-center gap-1.5">
+        <span>🌾</span> Sin recogidas registradas aún.
+      </p>
+    )
   }
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col gap-1">
       {records.map(r => (
-        <li key={r.id} className="flex items-center justify-between text-sm py-1.5 border-b border-border-subtle last:border-0">
+        <li key={r.id} className="flex items-center justify-between text-sm py-2 border-b border-border-subtle last:border-0">
           <div className="flex items-center gap-2">
-            <Scale className="size-3.5 text-primary shrink-0" />
-            <span className="font-medium text-foreground">{r.kg.toFixed(1)} kg</span>
+            <span className="text-base leading-none">⚖️</span>
+            <span className="font-semibold text-foreground">{r.kg.toFixed(1)} kg</span>
             {r.notes ? <span className="text-xs text-subtle hidden sm:inline">— {r.notes}</span> : null}
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-subtle">
-              {new Date(r.harvestedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+              📅 {new Date(r.harvestedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
             </span>
             <button
               onClick={() => handleDelete(r.id)}

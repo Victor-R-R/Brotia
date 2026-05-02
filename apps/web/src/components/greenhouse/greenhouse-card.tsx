@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { MapPin, Leaf } from 'lucide-react'
-import { Card } from '@/components/ui/card'
 import { WeatherWidget } from './weather-widget'
 
 type GreenhouseCardProps = {
@@ -26,34 +24,47 @@ export const GreenhouseCard = ({
   wind,
   activeCropName,
 }: GreenhouseCardProps) => (
-  <Link href={`/greenhouse/${id}`} className="block hover:opacity-90 transition-opacity">
-    <Card>
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="font-heading text-base font-semibold text-foreground">{name}</h3>
-        {area ? (
-          <span className="text-xs text-subtle bg-surface-alt px-2 py-0.5 rounded-md">
-            {area} m²
-          </span>
-        ) : null}
-      </div>
+  <Link href={`/greenhouse/${id}`} className="block group">
+    <div className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:border-primary/40 transition-all">
 
-      <div className="flex items-center gap-1 text-xs text-subtle mb-3">
-        <MapPin className="size-3" />
-        {lat.toFixed(4)}, {lng.toFixed(4)}
-      </div>
-
-      {activeCropName ? (
-        <div className="flex items-center gap-1.5 text-xs text-muted mb-3">
-          <Leaf className="size-3 text-primary" />
-          <span>{activeCropName}</span>
+      <div className="p-4">
+        {/* Title + area badge */}
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="font-heading text-base font-semibold text-foreground flex items-center gap-2">
+            🏡 {name}
+          </h3>
+          {area ? (
+            <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full flex items-center gap-1">
+              📐 {area.toLocaleString()} m²
+            </span>
+          ) : null}
         </div>
-      ) : null}
 
-      {temperature !== undefined && humidity !== undefined && wind !== undefined ? (
-        <WeatherWidget temperature={temperature} humidity={humidity} wind={wind} />
-      ) : (
-        <p className="text-xs text-subtle">Clima no disponible</p>
-      )}
-    </Card>
+        {/* Location */}
+        <div className="flex items-center gap-1.5 text-xs text-subtle mb-2">
+          <span className="text-sm leading-none">📍</span>
+          <span>{lat.toFixed(4)}, {lng.toFixed(4)}</span>
+        </div>
+
+        {/* Active crop */}
+        {activeCropName ? (
+          <div className="flex items-center gap-1.5 text-xs text-muted mb-3">
+            <span className="text-sm leading-none">🌱</span>
+            <span>{activeCropName}</span>
+          </div>
+        ) : (
+          <div className="mb-3" />
+        )}
+
+        {/* Weather */}
+        {temperature !== undefined && humidity !== undefined && wind !== undefined ? (
+          <div className="pt-3 border-t border-border-subtle">
+            <WeatherWidget temperature={temperature} humidity={humidity} wind={wind} />
+          </div>
+        ) : (
+          <p className="text-xs text-subtle pt-3 border-t border-border-subtle">🌤️ Clima no disponible</p>
+        )}
+      </div>
+    </div>
   </Link>
 )

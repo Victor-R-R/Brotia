@@ -64,6 +64,8 @@ const EstadisticasPage = async () => {
     greenhouseId: r.crop.greenhouse.id,
   }))
 
+  const pestCount = pestRecords.length
+
   const alertEntries: AlertEntry[] = weatherAlerts.map(r => ({
     type: r.type,
     severity: r.severity,
@@ -91,6 +93,7 @@ const EstadisticasPage = async () => {
         pestEntries={pestEntries}
         alertEntries={alertEntries}
         cropEntries={cropEntries}
+        pestCount={pestCount}
       />
     </div>
   )

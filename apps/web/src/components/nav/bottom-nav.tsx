@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Leaf, Users, Bot, User, BarChart3, Shield } from 'lucide-react'
+import { Shield } from 'lucide-react'
 
 const baseNavItems = [
-  { href: '/dashboard',     icon: LayoutDashboard, label: 'Inicio'        },
-  { href: '/cultivos',      icon: Leaf,            label: 'Cultivos'      },
-  { href: '/estadisticas',  icon: BarChart3,       label: 'Estadísticas'  },
-  { href: '/community',     icon: Users,           label: 'Comunidad'     },
-  { href: '/chat',          icon: Bot,             label: 'IA'            },
-  { href: '/compte',        icon: User,            label: 'Cuenta'        },
+  { href: '/dashboard',    icon: '🏡', label: 'Inicio'       },
+  { href: '/cultivos',     icon: '🌱', label: 'Cultivos'     },
+  { href: '/estadisticas', icon: '📊', label: 'Stats'        },
+  { href: '/community',    icon: '🤝', label: 'Comunidad'    },
+  { href: '/chat',         icon: '🤖', label: 'IA'           },
+  { href: '/compte',       icon: '👤', label: 'Cuenta'       },
 ]
 
 type BottomNavProps = {
@@ -20,12 +20,12 @@ type BottomNavProps = {
 export const BottomNav = ({ isAdmin }: BottomNavProps) => {
   const pathname = usePathname()
   const navItems = isAdmin
-    ? [...baseNavItems, { href: '/admin', icon: Shield, label: 'Admin' }]
+    ? [...baseNavItems, { href: '/admin', icon: '🛡️', label: 'Admin' }]
     : baseNavItems
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 bg-surface border-t border-border flex md:hidden">
-      {navItems.map(({ href, icon: Icon, label }) => {
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-surface-alt border-t border-border flex md:hidden">
+      {navItems.map(({ href, icon, label }) => {
         const isActive = pathname === href
         return (
           <Link
@@ -33,10 +33,10 @@ export const BottomNav = ({ isAdmin }: BottomNavProps) => {
             href={href}
             aria-current={isActive ? 'page' : undefined}
             className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 text-xs transition-colors ${
-              isActive ? 'text-primary font-medium' : 'text-muted'
+              isActive ? 'text-primary font-semibold' : 'text-muted hover:text-primary'
             }`}
           >
-            <Icon className="size-5" />
+            <span className="text-lg leading-none">{icon}</span>
             <span>{label}</span>
           </Link>
         )

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import type { ReactNode } from 'react'
-import { BarChart2, Download, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { Download, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { HarvestBarChart } from './harvest-bar-chart'
 import { CropTotalsChart } from './crop-totals-chart'
 import { GreenhouseComparisonChart } from './greenhouse-comparison-chart'
@@ -45,6 +45,7 @@ type Props = {
   pestEntries: PestEntry[]
   alertEntries: AlertEntry[]
   cropEntries: CropEntry[]
+  pestCount: number
 }
 
 const TrendBadge = ({
@@ -79,10 +80,27 @@ const TrendBadge = ({
   )
 }
 
-const KpiCard = ({ label, value, trend }: { label: string; value: string; trend?: ReactNode }) => (
-  <div className="bg-surface border border-border rounded-lg p-4">
-    <p className="text-xs text-subtle uppercase tracking-wide font-medium">{label}</p>
-    <p className="font-heading text-2xl font-bold text-foreground mt-1">{value}</p>
+const KpiCard = ({
+  label,
+  value,
+  trend,
+  emoji,
+  danger,
+}: {
+  label: string
+  value: string
+  trend?: ReactNode
+  emoji?: string
+  danger?: boolean
+}) => (
+  <div className="bg-surface border border-border rounded-xl p-4 hover:shadow-sm transition-shadow">
+    <div className="flex items-start justify-between gap-2 mb-2">
+      <p className="text-xs text-subtle uppercase tracking-wide font-medium">{label}</p>
+      {emoji && <span className="text-xl leading-none">{emoji}</span>}
+    </div>
+    <p className={`font-heading text-2xl font-bold mt-0.5 ${danger ? 'text-danger-text' : 'text-foreground'}`}>
+      {value}
+    </p>
     {trend !== undefined && <div className="mt-1.5">{trend}</div>}
   </div>
 )
@@ -97,6 +115,7 @@ export const EstadisticasDashboard = ({
   pestEntries,
   alertEntries,
   cropEntries,
+  pestCount,
 }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedYear, setSelectedYear] = useState<number | null>(null)
@@ -185,6 +204,13 @@ export const EstadisticasDashboard = ({
     URL.revokeObjectURL(url)
   }
 
+  const recentHarvests = useMemo(() =>
+    [...fHarvest]
+      .sort((a, b) => new Date(b.harvestedAt).getTime() - new Date(a.harvestedAt).getTime())
+      .slice(0, 10),
+    [fHarvest]
+  )
+
   const hasAnyData =
     harvestEntries.length > 0 || pestEntries.length > 0 || alertEntries.length > 0
 
@@ -245,24 +271,31 @@ export const EstadisticasDashboard = ({
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <KpiCard
+          emoji="🌾"
           label="Total cosechado"
           value={`${totalKg.toFixed(1)} kg`}
           trend={<TrendBadge current={kgThisYear} prev={kgPrevYear} compareLabel={compareLabel} />}
         />
         <KpiCard
+          emoji="📋"
           label="Registros cosecha"
           value={String(fHarvest.length)}
           trend={
             <TrendBadge current={countThisYear} prev={countPrevYear} compareLabel={compareLabel} />
           }
         />
-        <KpiCard label="Cultivos activos" value={String(activeCrops)} />
-        <KpiCard label="Cosechados" value={String(harvestedCrops)} />
+        <KpiCard emoji="🌱" label="Cultivos activos" value={String(activeCrops)} />
+        <KpiCard
+          emoji="🐛"
+          label="Plagas detectadas"
+          value={String(pestCount)}
+          danger={pestCount > 0}
+        />
       </div>
 
       {!hasAnyData ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <BarChart2 className="size-10 text-muted mb-4" />
+          <span className="text-5xl mb-4">📊</span>
           <p className="text-muted font-medium">Sin datos todavía</p>
           <p className="text-sm text-subtle mt-1">
             Las estadísticas aparecerán aquí cuando registres cosechas, plagas o recibas alertas.
@@ -282,6 +315,48 @@ export const EstadisticasDashboard = ({
             <PestFrequencyChart entries={fPest} />
             <AlertsByTypeChart entries={fAlert} />
           </div>
+
+          {recentHarvests.length > 0 && (
+            <div className="bg-surface border border-border rounded-xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-border">
+                <h2 className="font-heading text-base font-semibold text-foreground">Últimas cosechas</h2>
+                <p className="text-xs text-subtle mt-0.5">{recentHarvests.length} registros más recientes</p>
+              </div>
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-surface-alt">
+                    <th className="text-left text-xs font-medium text-subtle px-5 py-2.5">Cultivo</th>
+                    <th className="text-left text-xs font-medium text-subtle px-5 py-2.5">Invernadero</th>
+                    <th className="text-right text-xs font-medium text-subtle px-5 py-2.5">kg</th>
+                    <th className="text-right text-xs font-medium text-subtle px-5 py-2.5">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentHarvests.map((h, i) => (
+                    <tr
+                      key={i}
+                      className={i % 2 === 0 ? 'bg-surface' : 'bg-surface-alt'}
+                    >
+                      <td className="px-5 py-3 text-sm font-medium text-foreground">{h.cropName}</td>
+                      <td className="px-5 py-3 text-sm text-muted">{h.greenhouseName}</td>
+                      <td className="px-5 py-3 text-sm font-semibold text-right text-harvest">
+                        {h.kg.toFixed(1)} kg
+                      </td>
+                      <td className="px-5 py-3 text-xs text-subtle text-right">
+                        {new Date(h.harvestedAt).toLocaleDateString('es-ES', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: recentHarvests.some(
+                            r => new Date(r.harvestedAt).getFullYear() !== new Date(h.harvestedAt).getFullYear()
+                          ) ? 'numeric' : undefined,
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
