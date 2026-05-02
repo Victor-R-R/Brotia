@@ -1,19 +1,40 @@
-import { useMemo, useState } from 'react'
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  View, Text, TextInput, TouchableOpacity, ScrollView,
+  Alert, ActivityIndicator, StyleSheet,
+} from 'react-native'
 import MapView, { Marker, UrlTile } from 'react-native-maps'
-import { useRouter, Stack } from 'expo-router'
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { MapPin, CheckCircle } from 'lucide-react-native'
 import { api } from '@/lib/api'
 import { palette } from '@/lib/theme'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000'
 
-const NewGreenhouseScreen = () => {
-  const router = useRouter()
+const EditGreenhouseScreen = () => {
+  const { id }  = useLocalSearchParams<{ id: string }>()
+  const safeId  = Array.isArray(id) ? id[0] : id
+  const router  = useRouter()
+
+  const [fetched,    setFetched]    = useState(false)
   const [form,       setForm]       = useState({ name: '', lat: '', lng: '', area: '' })
   const [loading,    setLoading]    = useState(false)
   const [catastroRc, setCatastroRc] = useState<string | null>(null)
   const [querying,   setQuerying]   = useState(false)
+
+  useEffect(() => {
+    api.greenhouses.get(safeId)
+      .then(gh => {
+        setForm({
+          name: gh.name,
+          lat:  String(gh.lat),
+          lng:  String(gh.lng),
+          area: gh.area != null ? String(gh.area) : '',
+        })
+        setFetched(true)
+      })
+      .catch(() => Alert.alert('Error', 'No se pudo cargar el invernadero.'))
+  }, [safeId])
 
   const previewCoords = useMemo(() => {
     const lat = parseFloat(form.lat)
@@ -62,16 +83,13 @@ const NewGreenhouseScreen = () => {
       Alert.alert('Campos requeridos', 'Nombre, latitud y longitud son obligatorios')
       return
     }
-
     const parsedLat = parseFloat(form.lat)
     const parsedLng = parseFloat(form.lng)
-
     if (isNaN(parsedLat) || parsedLat < -90  || parsedLat > 90  ||
         isNaN(parsedLng) || parsedLng < -180 || parsedLng > 180) {
       Alert.alert('Coordenadas inválidas', 'Latitud: −90 a 90, Longitud: −180 a 180')
       return
     }
-
     if (form.area.trim() !== '') {
       const parsedArea = parseFloat(form.area)
       if (isNaN(parsedArea) || parsedArea <= 0) {
@@ -82,28 +100,36 @@ const NewGreenhouseScreen = () => {
 
     setLoading(true)
     try {
-      const gh = await api.greenhouses.create({
-        name: form.name,
+      await api.greenhouses.update(safeId, {
+        name: form.name.trim(),
         lat:  parsedLat,
         lng:  parsedLng,
-        area: form.area.trim() ? parseFloat(form.area) : undefined,
+        area: form.area.trim() ? parseFloat(form.area) : null,
       })
-      router.replace(`/greenhouse/${gh.id}`)
+      router.back()
     } catch {
-      Alert.alert('Error', 'No se pudo crear el invernadero. Inténtalo de nuevo.')
+      Alert.alert('Error', 'No se pudo guardar el invernadero. Inténtalo de nuevo.')
     } finally {
       setLoading(false)
     }
   }
 
+  if (!fetched) {
+    return (
+      <View className="flex-1 bg-background items-center justify-center">
+        <ActivityIndicator color={palette.primary} />
+      </View>
+    )
+  }
+
   return (
     <>
-      <Stack.Screen options={{ title: 'Nuevo invernadero', headerShown: true, headerBackTitle: '' }} />
+      <Stack.Screen options={{ title: 'Editar invernadero', headerShown: true, headerBackTitle: '' }} />
       <ScrollView className="flex-1 bg-background px-4 pt-4">
 
         {[
-          { key: 'name', label: 'Nombre',          placeholder: 'Invernadero Norte', numeric: false },
-          { key: 'area', label: 'Superficie (m²)',  placeholder: '500',               numeric: true  },
+          { key: 'name', label: 'Nombre',         placeholder: 'Invernadero Norte', numeric: false },
+          { key: 'area', label: 'Superficie (m²)', placeholder: '500',              numeric: true  },
         ].map(field => (
           <View key={field.key} className="mb-4">
             <Text className="text-sm font-medium text-foreground mb-1.5">{field.label}</Text>
@@ -206,7 +232,7 @@ const NewGreenhouseScreen = () => {
           disabled={loading}
         >
           <Text className="text-white font-semibold text-sm">
-            {loading ? 'Creando...' : 'Crear invernadero'}
+            {loading ? 'Guardando...' : 'Guardar cambios'}
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -214,4 +240,4 @@ const NewGreenhouseScreen = () => {
   )
 }
 
-export default NewGreenhouseScreen
+export default EditGreenhouseScreen
