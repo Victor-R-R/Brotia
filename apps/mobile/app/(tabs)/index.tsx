@@ -67,7 +67,7 @@ const GreenhousesScreen = () => {
             lng={gh.lng}
             area={gh.area}
             activeCropName={gh.crops[0]?.name}
-            alertCount={gh.alerts.length}
+            alertCount={gh.alerts?.length ?? 0}
           />
         ))}
       </ScrollView>

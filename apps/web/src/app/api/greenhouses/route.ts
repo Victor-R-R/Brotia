@@ -12,7 +12,7 @@ export const GET = async (req: Request) => {
   try {
     const greenhouses = await db.greenhouse.findMany({
       where:   { userId: user.id },
-      include: { crops: { where: { status: 'GROWING' } } },
+      include: { crops: { where: { status: 'GROWING' } }, alerts: { where: { read: false } } },
       orderBy: { createdAt: 'desc' },
     })
     return NextResponse.json(greenhouses)
