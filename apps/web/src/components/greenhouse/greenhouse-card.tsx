@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getCropEmoji } from '@/lib/crops'
 import { WeatherWidget } from './weather-widget'
 
 type GreenhouseCardProps = {
@@ -49,7 +50,7 @@ export const GreenhouseCard = ({
         {/* Active crop */}
         {activeCropName ? (
           <div className="flex items-center gap-1.5 text-xs text-muted mb-3">
-            <span className="text-sm leading-none">🌱</span>
+            <span className="text-sm leading-none">{getCropEmoji(activeCropName)}</span>
             <span>{activeCropName}</span>
           </div>
         ) : (
