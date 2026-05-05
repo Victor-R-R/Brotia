@@ -94,7 +94,7 @@ describe('POST /api/conversations', () => {
     }))
 
     const createCall = vi.mocked(db.conversation.create).mock.calls[0][0]
-    expect(createCall.data.title.length).toBeLessThanOrEqual(80)
+    expect(createCall.data.title?.length).toBeLessThanOrEqual(80)
   })
 
   it('returns 401 when not authenticated', async () => {
