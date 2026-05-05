@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Leaf, FileText, Wind } from 'lucide-react'
+import { ArrowLeft, FileText, Wind } from 'lucide-react'
+import { getCropEmoji } from '@/lib/crops'
 import { auth } from '@/lib/auth'
 import { db } from '@brotia/db'
 import type { Note } from '@brotia/db'
@@ -133,7 +134,7 @@ const GreenhouseDetailPage = async ({ params }: Props) => {
         <section className="bg-surface border border-border rounded-lg p-4 mb-4">
           <h2 className="font-heading text-sm font-semibold text-muted mb-2">Cultivo activo</h2>
           <div className="flex items-center gap-2">
-            <Leaf className="size-4 text-primary" />
+            <span className="text-base leading-none">{getCropEmoji(greenhouse.crops[0].name)}</span>
             <span className="text-sm text-foreground font-medium">{greenhouse.crops[0].name}</span>
             {greenhouse.crops[0].variety ? (
               <span className="text-xs text-subtle">— {greenhouse.crops[0].variety}</span>
