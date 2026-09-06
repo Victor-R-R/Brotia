@@ -56,7 +56,19 @@ export const proxy = async (req: NextRequest) => {
 
   if (!limiter) return NextResponse.next()
 
-  const { success, limit, remaining, reset } = await limiter.limit(ip)
+  let result: Awaited<ReturnType<Ratelimit["limit"]>>
+
+  try {
+    result = await limiter.limit(ip)
+  } catch (error) {
+    // Rate limiting is a protection layer, not a gate. If the Redis backend is
+    // unreachable, failing closed would take auth and chat down with it — a
+    // dependency outage must not become an application outage. Fail open, loudly.
+    console.error("[proxy] rate limit backend unreachable, failing open:", error)
+    return NextResponse.next()
+  }
+
+  const { success, limit, remaining, reset } = result
 
   if (!success) {
     return NextResponse.json(
